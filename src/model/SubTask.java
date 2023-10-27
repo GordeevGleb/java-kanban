@@ -4,9 +4,16 @@ import java.util.Objects;
 
 public class SubTask extends Task{
     private int masterId;
+    public SubTask(String name, String description, Status status, int masterId) {
+        super(name, description, status);
+        this.masterId = masterId;
+    }
 
     public int getMasterId() {
         return masterId;
+    }
+    public void setMasterId(int masterId) {
+        this.masterId = masterId;
     }
 
     @Override
@@ -28,13 +35,5 @@ public class SubTask extends Task{
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getMasterId());
-    }
-
-    public void setMasterId(int masterId) {
-        this.masterId = masterId;
-    }
-
-    public SubTask(String name) {
-        super(name);
     }
 }

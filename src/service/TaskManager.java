@@ -8,174 +8,124 @@ import model.Task;
 import java.util.HashMap;
 
 public class TaskManager {
-    private int taskCount;
-    private HashMap<Integer, Task> allTasks = new HashMap<>();
 
-    public Task createTask(String name) {
-        Task task = new Task(name);
-        task.setId(++taskCount);
+    private HashMap<Integer, Task> allTasks = new HashMap<>();
+    private HashMap<Integer, Epic> allEpicTasks = new HashMap<>();
+    private HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
+    private int taskCount;
+
+    public Task createTask(Task task) {
+        task.setId(generateId());
         allTasks.put(task.getId(), task);
         return task;
     }
 
-    public Epic createEpic(String name) {
-        Epic epic = new Epic(name);
-        epic.setId(++taskCount);
-        allTasks.put(epic.getId(), epic);
+    public Epic createEpic(Epic epic) {
+        epic.setId(generateId());
+        allEpicTasks.put(epic.getId(), epic);
         return epic;
     }
 
-    public SubTask createSubTask(String name, int masterId) {
-        SubTask subTask = null;
+    public SubTask createSubTask(SubTask subTask) {
         Epic epic;
-        if (allTasks.containsKey(masterId) && allTasks.get(masterId).getClass().equals(Epic.class)) {
-            epic = (Epic) allTasks.get(masterId);
-            subTask = new SubTask(name);
-            subTask.setId(++taskCount);
-            subTask.setMasterId(masterId);
-            epic.addStep(subTask);
+        if (allEpicTasks.containsKey(subTask.getMasterId())) {
+            epic = allEpicTasks.get(subTask.getMasterId());
+            subTask.setId(generateId());
+            epic.addSubtask(subTask);
+            allSubTasks.put(subTask.getId(), subTask);
         }
         return subTask;
     }
 
     public HashMap<Integer, Task> getAllTasks() {
-        HashMap<Integer, Task> allUsualTasks = new HashMap<>();
-        for (Task task : allTasks.values()) {
-            if (task.getClass().equals(Task.class)) {
-                allUsualTasks.put(task.getId(), task);
-            }
-        }
-        return allUsualTasks;
+        return allTasks;
     }
 
-    public HashMap<Integer, Task> getAllEpic() {
-        HashMap<Integer, Task> allEpics = new HashMap<>();
-        for (Task task : allTasks.values()) {
-            if (task.getClass().equals(Epic.class)) {
-                allEpics.put(task.getId(), task);
-            }
-        }
-        return allEpics;
+    public HashMap<Integer, Epic> getAllEpic() {
+        return allEpicTasks;
     }
 
     public HashMap<Integer, SubTask> getAllSubTasks() {
-        HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
-        Epic epic;
-        for (Task task : allTasks.values()) {
-            if (task.getClass().equals(Epic.class)) {
-                epic = (Epic) task;
-                for (SubTask subTask : epic.getEpicSteps().values())
-                    allSubTasks.put(subTask.getId(), subTask);
-            }
-        }
         return allSubTasks;
     }
 
     public HashMap<Integer, Task> deleteAllTasks() {
-        HashMap<Integer, Task> resultMap = new HashMap<>();
-        for (Task task : allTasks.values()) {
-            if (!task.getClass().equals(Task.class)) {
-                resultMap.put(task.getId(), task);
-            }
-        }
-        allTasks = resultMap;
+        allTasks.clear();
         return allTasks;
     }
 
-    public HashMap<Integer, Task> deleteAllEpics() {
-        HashMap<Integer, Task> resultMap = new HashMap<>();
-        for (Task task : allTasks.values()) {
-            if (!task.getClass().equals(Epic.class)) {
-                resultMap.put(task.getId(), task);
-            }
-        }
-        allTasks = resultMap;
-        return allTasks;
+    public HashMap<Integer, Epic> deleteAllEpics() {
+        allSubTasks.clear();
+        allEpicTasks.clear();
+        return allEpicTasks;
     }
 
-    public HashMap<Integer, Task> deleteAllSubTasks() {
-        Epic epic;
-        for (Task task : allTasks.values()) {
-            if (task.getClass().equals(Epic.class)) {
-                epic = (Epic) task;
-                epic.removeAllSteps();
-            }
+    public HashMap<Integer, SubTask> deleteAllSubTasks() {
+        for (Epic epic : allEpicTasks.values()) {
+            epic.removeAllSteps();
         }
-        return allTasks;
+        allSubTasks.clear();
+        return allSubTasks;
     }
 
     public Task getTaskById(int id) {
         Task task = null;
         if (allTasks.containsKey(id))
             task = allTasks.get(id);
-        if (getAllSubTasks().containsKey(id))
-            task = getAllSubTasks().get(id);
+        if (allEpicTasks.containsKey(id))
+            task = allEpicTasks.get(id);
+        if (allSubTasks.containsKey(id))
+            task = allSubTasks.get(id);
         return task;
 
     }
 
-    public HashMap<Integer, Task> deleteTaskById(int id) {
-        HashMap<Integer, Task> resultMap = new HashMap<>();
+    public void deleteTaskById(int id) {
         if (allTasks.containsKey(id)) {
-            for (Integer key : allTasks.keySet()) {
-                if (!(key == id)) {
-                    resultMap.put(key, allTasks.get(key));
-                }
-            }
-            allTasks = resultMap;
-        } else if (getAllSubTasks().containsKey(id)) {
-            SubTask subTask = getAllSubTasks().get(id);
-            int masterId = subTask.getMasterId();
-            Epic epic = (Epic) allTasks.get(masterId);
-            epic.removeStepById(id);
-            epic.checkStatus();
-        } else {
-            return allTasks;
+            allTasks.remove(id);
+
+        } else if (allEpicTasks.containsKey(id)) {
+            allEpicTasks.remove(id);
+        } else if (allSubTasks.containsKey(id)) {
+            int masterId = allSubTasks.get(id).getMasterId();
+            allEpicTasks.get(masterId).removeStepById(id);
+            allSubTasks.remove(id);
         }
-        return allTasks;
     }
 
     public void refreshTask(int taskId, String name, String description, Status status) {
-        if (allTasks.containsKey(taskId) && allTasks.get(taskId).getClass().equals(Task.class)) {
-            Task task = createTask(name);
-            task.setDescription(description);
-            task.setStatus(status);
+        if (allTasks.containsKey(taskId)) {
+            createTask(new Task(name, description, status));
             allTasks.remove(taskId);
         }
-        if (allTasks.containsKey(taskId) && (allTasks.get(taskId).getClass().equals(Epic.class))) {
-            Epic epic = createEpic(name);
-            epic.setDescription(description);
-            epic.setStatus(status);
-
-            allTasks.remove(taskId);
+        if (allEpicTasks.containsKey(taskId)) {
+            createEpic(new Epic(name, description, status));
+            allEpicTasks.remove(taskId);
+            allSubTasks.values().removeIf(subTask -> subTask.getMasterId() == taskId);
         }
-        if (getAllSubTasks().containsKey(taskId)) {
-            int masterKey = getAllSubTasks().get(taskId).getMasterId();
-            Epic epic = (Epic) allTasks.get(masterKey);
+        if (allSubTasks.containsKey(taskId)) {
+            int masterKey = allSubTasks.get(taskId).getMasterId();
+            Epic epic = allEpicTasks.get(masterKey);
             epic.removeStepById(taskId);
-            SubTask subTask = createSubTask(name, masterKey);
-            subTask.setDescription(description);
-            subTask.setStatus(status);
-            epic.checkStatus();
-            getAllSubTasks().remove(taskId);
+            createSubTask(new SubTask(name, description, status, masterKey));
+
+            allSubTasks.remove(taskId);
         }
     }
-    public HashMap <Integer, SubTask> getSubTasksByEpic(int epicId) {
-        Epic epic = null;
-        if (allTasks.containsKey(epicId) && allTasks.get(epicId).getClass().equals(Epic.class)) {
-            epic = (Epic) allTasks.get(epicId);
+
+    public SubTask getSubTasksByEpic(int epicId) {
+        SubTask resultTask = null;
+        for (SubTask subTask : allSubTasks.values()) {
+            if (subTask.getMasterId() == epicId)
+                resultTask = subTask;
         }
-        return epic.getEpicSteps();
+        return resultTask;
     }
-    public Status checkStatus(int id) {
-        Status status = Status.NEW;
-        if (allTasks.containsKey(id) && allTasks.get(id).getClass().equals(Epic.class)) {
-            Epic epic = (Epic) allTasks.get(id);
-            epic.checkStatus();
-            status = epic.getStatus();
-        }
-        return status;
+
+    private int generateId() {
+        return taskCount++;
     }
+
 }
 
 

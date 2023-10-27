@@ -1,4 +1,7 @@
+import model.Epic;
 import model.Status;
+import model.SubTask;
+import model.Task;
 import service.TaskManager;
 
 import java.util.Scanner;                                           /* Ярослав, здравствуй!
@@ -16,18 +19,19 @@ public class Main {
             getInfo();
             int command = scanner.nextInt();
             if (command == 1) {
-                taskManager.createTask("fTask");
-                taskManager.createEpic("sTask");
-                taskManager.createEpic("tTask");
-                taskManager.createSubTask("fSubTask", 2);
-                taskManager.createSubTask("sSubTask", 2);
+                taskManager.createTask(new Task("fTask", "someDescription", Status.IN_PROGRESS));
+                taskManager.createEpic(new Epic("sTask", "someEpicDescriptionn", Status.IN_PROGRESS));
+                taskManager.createEpic(new Epic("tTask", "somesecondEpicDescription", Status.DONE));
+                taskManager.createSubTask(new SubTask("subTask", "123", Status.NEW, 1));
+                taskManager.createSubTask(new SubTask("sSubTask", "someSubTaskDesc."
+                        , Status.DONE, 1));
             } else if (command == 2) {
                 System.out.println(taskManager.getAllTasks());
                 System.out.println(taskManager.getAllEpic());
                 System.out.println(taskManager.getAllSubTasks());
             } else if (command == 3) {
                 taskManager.deleteAllTasks();
-               // taskManager.deleteAllEpics();
+                taskManager.deleteAllEpics();
                 taskManager.deleteAllSubTasks();
             } else if (command == 4) {
                 System.out.println(taskManager.getTaskById(1));
@@ -37,15 +41,13 @@ public class Main {
                 taskManager.refreshTask(4, "newSubTask", "123", Status.DONE);
                 taskManager.refreshTask(1, "new Task", "3213", Status.IN_PROGRESS);
             } else if (command == 6) {
-                System.out.println(taskManager.deleteTaskById(4));
-                System.out.println(taskManager.deleteTaskById(3));
-               // System.out.println(taskManager.deleteTaskById(2));
+                taskManager.deleteTaskById(4);
+                taskManager.deleteTaskById(3);
+               taskManager.deleteTaskById(2);
             } else if (command == 7) {
                 System.out.println(taskManager.getSubTasksByEpic(2));
                 System.out.println(taskManager.getSubTasksByEpic(3));
-            } else if (command == 8) {
-                System.out.println(taskManager.checkStatus(2));
-            } else if (command == 0) {
+            }  else if (command == 0) {
                 break;
             }
         }
@@ -58,7 +60,6 @@ public class Main {
         System.out.println("5 - Обновление задачи");
         System.out.println("6 - Удаление задачи по id");
         System.out.println("7 - Получить список всех задач Эпика");
-        System.out.println("8 - Проверка статуса задачи(только для эпиков)");
         System.out.println("0 - Выход");
     }
 }
