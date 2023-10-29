@@ -37,14 +37,16 @@ public class Epic extends Task {
         for (Integer key : epicSteps.keySet()) {
             statusList.add(epicSteps.get(key).getStatus());
         }
-        if (statusList.size() > 0) {
+
             if (!(statusList.contains(Status.NEW)) && !(statusList.contains(Status.IN_PROGRESS))
                     && (statusList.size() > 0))
                 this.setStatus(Status.DONE);
             else if (statusList.contains(Status.IN_PROGRESS) || (statusList.contains(Status.DONE)))
                 this.setStatus(Status.IN_PROGRESS);
+            else
+                this.setStatus(Status.NEW);
         }
-    }
+
 
 
     @Override

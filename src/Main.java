@@ -4,12 +4,7 @@ import model.SubTask;
 import model.Task;
 import service.TaskManager;
 
-import java.util.Scanner;                                           /* Ярослав, здравствуй!
-
-                                                                     Эта итерация, по ощущениям, может претендовать на
-                                                                     итоговый вариант. Ошибки были глупыми, но они дали
-                                                                     ценный опыт :)
-                                                                     */
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -23,8 +18,7 @@ public class Main {
                 taskManager.createEpic(new Epic("sTask", "someEpicDescriptionn", Status.IN_PROGRESS));
                 taskManager.createEpic(new Epic("tTask", "somesecondEpicDescription", Status.DONE));
                 taskManager.createSubTask(new SubTask("subTask", "123", Status.DONE, 1));
-                taskManager.createSubTask(new SubTask("sSubTask", "someSubTaskDesc."
-                        , Status.NEW, 1));
+                taskManager.createSubTask(new SubTask("sSubTask", "someSubTaskDesc.", Status.NEW, 1));
             } else if (command == 2) {
                 System.out.println(taskManager.getAllTasks());
                 System.out.println(taskManager.getAllEpic());
@@ -42,11 +36,11 @@ public class Main {
                         0);
                 taskManager.refreshSubTask(new SubTask("new subTaskName", "new description",
                         Status.DONE, 1),4);
-              //  taskManager.refreshEpic(new Epic("newEpicName", "new epic description", Status.DONE), 1);
+                taskManager.refreshEpic(new Epic("newEpicName", "new epic description", Status.DONE), 1);
             } else if (command == 6) {
                 taskManager.deleteTaskById(3);
-              //  taskManager.deleteTaskById(3);
-             //  taskManager.deleteTaskById(2);
+                taskManager.deleteTaskById(3);
+               taskManager.deleteTaskById(2);
             } else if (command == 7) {
                 System.out.println(taskManager.getSubTasksByEpic(2));
                 System.out.println(taskManager.getSubTasksByEpic(3));
