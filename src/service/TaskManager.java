@@ -27,9 +27,8 @@ public class TaskManager {
     }
 
     public SubTask createSubTask(SubTask subTask) {
-        Epic epic;
         if (allEpicTasks.containsKey(subTask.getMasterId())) {
-            epic = allEpicTasks.get(subTask.getMasterId());
+           Epic epic = allEpicTasks.get(subTask.getMasterId());
             subTask.setId(generateId());
             epic.addSubtask(subTask);
             allSubTasks.put(subTask.getId(), subTask);
@@ -93,26 +92,30 @@ public class TaskManager {
         }
     }
 
-    public void refreshTask(int taskId, String name, String description, Status status) {
+    public void refreshTask(Task task, int taskId) {
         if (allTasks.containsKey(taskId)) {
-            createTask(new Task(name, description, status));
+            createTask(new Task(task.getName(), task.getDescription(), task.getStatus()));
             allTasks.remove(taskId);
         }
+    }
+    public void refreshEpic(Epic epic, int taskId) {
         if (allEpicTasks.containsKey(taskId)) {
-            createEpic(new Epic(name, description, status));
+            createEpic(new Epic(epic.getName(), epic.getDescription(), epic.getStatus()));
             allEpicTasks.remove(taskId);
             allSubTasks.values().removeIf(subTask -> subTask.getMasterId() == taskId);
         }
+    }
+    public void refreshSubTask(SubTask subTask, int taskId) {
         if (allSubTasks.containsKey(taskId)) {
             int masterKey = allSubTasks.get(taskId).getMasterId();
             Epic epic = allEpicTasks.get(masterKey);
             epic.removeStepById(taskId);
-            createSubTask(new SubTask(name, description, status, masterKey));
+            createSubTask(new SubTask(subTask.getName(), subTask.getDescription(), subTask.getStatus(),
+                    subTask.getMasterId()));
 
             allSubTasks.remove(taskId);
         }
     }
-
     public SubTask getSubTasksByEpic(int epicId) {
         SubTask resultTask = null;
         for (SubTask subTask : allSubTasks.values()) {

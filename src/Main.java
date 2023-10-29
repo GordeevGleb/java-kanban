@@ -6,14 +6,14 @@ import service.TaskManager;
 
 import java.util.Scanner;                                           /* Ярослав, здравствуй!
 
-                                                                     Эта итерация, скорее, для получения рекомендаций,
-                                                                     нежели конечный вариант.
-
+                                                                     Эта итерация, по ощущениям, может претендовать на
+                                                                     итоговый вариант. Ошибки были глупыми, но они дали
+                                                                     ценный опыт :)
                                                                      */
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+       TaskManager taskManager = new TaskManager();
         Scanner scanner = new Scanner(System.in);
         while (true) {
             getInfo();
@@ -22,9 +22,9 @@ public class Main {
                 taskManager.createTask(new Task("fTask", "someDescription", Status.IN_PROGRESS));
                 taskManager.createEpic(new Epic("sTask", "someEpicDescriptionn", Status.IN_PROGRESS));
                 taskManager.createEpic(new Epic("tTask", "somesecondEpicDescription", Status.DONE));
-                taskManager.createSubTask(new SubTask("subTask", "123", Status.NEW, 1));
+                taskManager.createSubTask(new SubTask("subTask", "123", Status.DONE, 1));
                 taskManager.createSubTask(new SubTask("sSubTask", "someSubTaskDesc."
-                        , Status.DONE, 1));
+                        , Status.NEW, 1));
             } else if (command == 2) {
                 System.out.println(taskManager.getAllTasks());
                 System.out.println(taskManager.getAllEpic());
@@ -38,12 +38,15 @@ public class Main {
                 System.out.println(taskManager.getTaskById(4));
                 System.out.println(taskManager.getTaskById(1231));
             } else if (command == 5) {
-                taskManager.refreshTask(4, "newSubTask", "123", Status.DONE);
-                taskManager.refreshTask(1, "new Task", "3213", Status.IN_PROGRESS);
+                taskManager.refreshTask(new Task("newName", "new description", Status.IN_PROGRESS),
+                        0);
+                taskManager.refreshSubTask(new SubTask("new subTaskName", "new description",
+                        Status.DONE, 1),4);
+              //  taskManager.refreshEpic(new Epic("newEpicName", "new epic description", Status.DONE), 1);
             } else if (command == 6) {
-                taskManager.deleteTaskById(4);
                 taskManager.deleteTaskById(3);
-               taskManager.deleteTaskById(2);
+              //  taskManager.deleteTaskById(3);
+             //  taskManager.deleteTaskById(2);
             } else if (command == 7) {
                 System.out.println(taskManager.getSubTasksByEpic(2));
                 System.out.println(taskManager.getSubTasksByEpic(3));

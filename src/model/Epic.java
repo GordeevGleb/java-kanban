@@ -32,21 +32,21 @@ public class Epic extends Task {
     }
 
 
-    public void checkStatus() {
+    private void checkStatus() {
         ArrayList<Status> statusList = new ArrayList<>();
         for (Integer key : epicSteps.keySet()) {
             statusList.add(epicSteps.get(key).getStatus());
         }
-        if (statusList.size() == 0)
-            this.setStatus(Status.NEW);
-           else {
-               if (statusList.contains(Status.DONE) || (statusList.contains(Status.IN_PROGRESS)))
-                this.setStatus(Status.IN_PROGRESS);
-             if (!statusList.contains(Status.NEW) && !(statusList.contains(Status.IN_PROGRESS)))
+        if (statusList.size() > 0) {
+            if (!(statusList.contains(Status.NEW)) && !(statusList.contains(Status.IN_PROGRESS))
+                    && (statusList.size() > 0))
                 this.setStatus(Status.DONE);
-
+            else if (statusList.contains(Status.IN_PROGRESS) || (statusList.contains(Status.DONE)))
+                this.setStatus(Status.IN_PROGRESS);
         }
     }
+
+
     @Override
     public String toString() {
         return "Epic{" +
