@@ -2,13 +2,14 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.InMemoryTaskManager;
 import service.TaskManager;
 
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-       TaskManager taskManager = new TaskManager();
+       TaskManager taskManager = new InMemoryTaskManager();
         Scanner scanner = new Scanner(System.in);
         while (true) {
             getInfo();
@@ -42,10 +43,10 @@ public class Main {
                 taskManager.deleteTaskById(3);
                taskManager.deleteTaskById(2);
             } else if (command == 7) {
-                System.out.println(taskManager.getSubTasksByEpic(2));
+                System.out.println(taskManager.getSubTasksByEpic(1));
                 System.out.println(taskManager.getSubTasksByEpic(3));
-            }  else if (command == 0) {
-                break;
+            } else if (command == 8) {
+                System.out.println(taskManager.getHistory());
             }
         }
     }
@@ -57,6 +58,7 @@ public class Main {
         System.out.println("5 - Обновление задачи");
         System.out.println("6 - Удаление задачи по id");
         System.out.println("7 - Получить список всех задач Эпика");
+        System.out.println("8 - Показать историю просмотров(только последние 10 задач)");
         System.out.println("0 - Выход");
     }
 }

@@ -4,10 +4,15 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class InMemoryTaskManager implements TaskManager {
+    private  List<Task> taskHistory = new ArrayList<>();
+
+
 
     private HashMap<Integer, Task> allTasks = new HashMap<>();
     private HashMap<Integer, Epic> allEpicTasks = new HashMap<>();
@@ -69,12 +74,17 @@ public class InMemoryTaskManager implements TaskManager {
 @Override
     public Task getTaskById(int id) {
         Task task = null;
-        if (allTasks.containsKey(id))
-            task = allTasks.get(id);
-        if (allEpicTasks.containsKey(id))
-            task = allEpicTasks.get(id);
-        if (allSubTasks.containsKey(id))
-            task = allSubTasks.get(id);
+
+            if (allTasks.containsKey(id))
+                task = allTasks.get(id);
+            if (allEpicTasks.containsKey(id))
+                task = allEpicTasks.get(id);
+            if (allSubTasks.containsKey(id))
+                task = allSubTasks.get(id);
+
+            taskHistory = fillHistory(task);
+
+
         return task;
 
     }
@@ -125,14 +135,28 @@ public class InMemoryTaskManager implements TaskManager {
             if (subTask.getMasterId() == epicId)
                 resultTask = subTask;
         }
+        taskHistory = fillHistory(resultTask);
         return resultTask;
     }
-@Override
-public int generateId() {
+
+private int generateId() {
         return taskCount++;
     }
-
-    public static List<Task> getHistory() {
-return null;
+@Override
+    public  List<Task> getHistory() {
+return taskHistory;
+}
+@Override
+public  List<Task> fillHistory(Task task) {
+    List<Task> taskLog = taskHistory;
+    if (!task.equals(null)) {
+        if (taskLog.size() < 10)
+            taskLog.add(task);
+        else {
+            taskLog.remove(0);
+            taskLog.add(task);
+        }
+    }
+    return taskLog;
 }
 }

@@ -5,11 +5,12 @@ import model.Status;
 import model.SubTask;
 import model.Task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public interface TaskManager {
-
+     List<Task> taskHistory = new ArrayList<>();
 
 
      Task createTask(Task task);
@@ -35,16 +36,23 @@ public interface TaskManager {
      void deleteTaskById(int id);
 
      void refreshTask(Task task, int taskId);
+
      void refreshEpic(Epic epic, int taskId);
+
      void refreshSubTask(SubTask subTask, int taskId);
+
      SubTask getSubTasksByEpic(int epicId);
 
-     int generateId();
 
-    static List<Task> getHistory() {
-        return null;
-    }
+      List<Task> getHistory();
+
+
+
+      List<Task> fillHistory(Task task);
+
+
 }
+
 
 
 
