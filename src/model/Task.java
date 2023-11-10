@@ -2,7 +2,7 @@ package model;
 
 import java.util.Objects;
 
-public class Task {
+public class Task implements StatusLogic {
     private String name;
     private String description;
     private int id;
@@ -53,7 +53,7 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
-                '}';
+                '}'+ setEmoji();
     }
 
     @Override
@@ -69,4 +69,25 @@ public class Task {
         return Objects.hash(getId());
     }
 
+    @Override
+    public void checkStatus() {
+        status = this.getStatus();
+    }
+
+    @Override
+    public String setEmoji() {
+        String emojiList = null;
+        switch (this.getStatus()) {
+            case NEW:
+                emojiList = EmojiCollection.NEW_TASK;
+                break;
+            case IN_PROGRESS:
+                emojiList = EmojiCollection.WORKING_ON;
+                break;
+            case DONE:
+                emojiList = EmojiCollection.DONE;
+                break;
+        }
+        return emojiList;
+    }
 }
