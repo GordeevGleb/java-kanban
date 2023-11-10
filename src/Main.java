@@ -2,12 +2,17 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
-import service.InMemoryTaskManager;
 import service.Managers;
-import service.TaskManager;
-
-import java.util.Scanner;
-
+import java.util.Scanner;                                                                    /*Ярослав, здравствуй!
+                                                                                              Не уверен, что до конца
+                                                                                              усвоил этот спринт; благо,
+                                                                                              будет и время, и желание
+                                                                                              повторить материал на
+                                                                                              каникулах. Позволил себе
+                                                                                              небольшую вольность в
+                                                                                              угоду лучшей читаемости
+                                                                                              вывода.
+                                                                                               */
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -15,11 +20,16 @@ public class Main {
             getInfo();
             int command = scanner.nextInt();
             if (command == 1) {
-                Managers.getDefault().createTask(new Task("fTask", "someDescription", Status.IN_PROGRESS));
-                Managers.getDefault().createEpic(new Epic("sTask", "someEpicDescriptionn", Status.IN_PROGRESS));
-                Managers.getDefault().createEpic(new Epic("tTask", "somesecondEpicDescription", Status.DONE));
-                Managers.getDefault().createSubTask(new SubTask("subTask", "123", Status.DONE, 1));
-                Managers.getDefault().createSubTask(new SubTask("sSubTask", "someSubTaskDesc.", Status.NEW, 1));
+                Managers.getDefault().createTask(new Task("fTask", "someDescription",
+                        Status.IN_PROGRESS));
+                Managers.getDefault().createEpic(new Epic("sTask", "someEpicDescriptionn",
+                        Status.IN_PROGRESS));
+                Managers.getDefault().createEpic(new Epic("tTask", "somesecondEpicDescription",
+                        Status.DONE));
+                Managers.getDefault().createSubTask(new SubTask("subTask", "123", Status.DONE,
+                        1));
+                Managers.getDefault().createSubTask(new SubTask("sSubTask", "someSubTaskDesc.",
+                        Status.NEW, 1));
             } else if (command == 2) {
                 System.out.println(Managers.getDefault().getAllTasks());
                 System.out.println(Managers.getDefault().getAllEpic());
@@ -45,11 +55,13 @@ public class Main {
                 System.out.println(Managers.getDefault().getTaskById(2));
                 System.out.println(Managers.getDefault().getTaskById(0));
             } else if (command == 5) {
-                Managers.getDefault().refreshTask(new Task("newName", "new description", Status.IN_PROGRESS),
+                Managers.getDefault().refreshTask(new Task("newName", "new description",
+                                Status.IN_PROGRESS),
                         0);
                 Managers.getDefault().refreshSubTask(new SubTask("new subTaskName", "new description",
                         Status.DONE, 1),4);
-                Managers.getDefault().refreshEpic(new Epic("newEpicName", "new epic description", Status.DONE), 1);
+                Managers.getDefault().refreshEpic(new Epic("newEpicName", "new epic description",
+                        Status.DONE), 1);
             } else if (command == 6) {
                 Managers.getDefault().deleteTaskById(3);
                 Managers.getDefault().deleteTaskById(3);
