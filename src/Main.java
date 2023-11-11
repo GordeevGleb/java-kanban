@@ -3,74 +3,66 @@ import model.Status;
 import model.SubTask;
 import model.Task;
 import service.Managers;
-import java.util.Scanner;                                                                    /*Ярослав, здравствуй!
-                                                                                              Не уверен, что до конца
-                                                                                              усвоил этот спринт; благо,
-                                                                                              будет и время, и желание
-                                                                                              повторить материал на
-                                                                                              каникулах. Позволил себе
-                                                                                              небольшую вольность в
-                                                                                              угоду лучшей читаемости
-                                                                                              вывода.
-                                                                                               */
+import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
+        Managers managers = new Managers();
         Scanner scanner = new Scanner(System.in);
         while (true) {
             getInfo();
             int command = scanner.nextInt();
             if (command == 1) {
-                Managers.getDefault().createTask(new Task("fTask", "someDescription",
+                managers.getDefault().createTask(new Task("fTask", "someDescription",
                         Status.IN_PROGRESS));
-                Managers.getDefault().createEpic(new Epic("sTask", "someEpicDescriptionn",
+                managers.getDefault().createEpic(new Epic("sTask", "someEpicDescriptionn",
                         Status.IN_PROGRESS));
-                Managers.getDefault().createEpic(new Epic("tTask", "somesecondEpicDescription",
+                managers.getDefault().createEpic(new Epic("tTask", "somesecondEpicDescription",
                         Status.DONE));
-                Managers.getDefault().createSubTask(new SubTask("subTask", "123", Status.DONE,
+                managers.getDefault().createSubTask(new SubTask("subTask", "123", Status.DONE,
                         1));
-                Managers.getDefault().createSubTask(new SubTask("sSubTask", "someSubTaskDesc.",
+                managers.getDefault().createSubTask(new SubTask("sSubTask", "someSubTaskDesc.",
                         Status.NEW, 1));
             } else if (command == 2) {
-                System.out.println(Managers.getDefault().getAllTasks());
-                System.out.println(Managers.getDefault().getAllEpic());
-                System.out.println(Managers.getDefault().getAllSubTasks());
+                System.out.println(managers.getDefault().getAllTasks());
+                System.out.println(managers.getDefault().getAllEpic());
+                System.out.println(managers.getDefault().getAllSubTasks());
             } else if (command == 3) {
-                Managers.getDefault().deleteAllTasks();
-                Managers.getDefault().deleteAllEpics();
-                Managers.getDefault().deleteAllSubTasks();
+                managers.getDefault().deleteAllTasks();
+                managers.getDefault().deleteAllEpics();
+                managers.getDefault().deleteAllSubTasks();
             } else if (command == 4) {
-                System.out.println(Managers.getDefault().getTaskById(1));
-                System.out.println(Managers.getDefault().getTaskById(4));
-                System.out.println(Managers.getDefault().getTaskById(0));
-                System.out.println(Managers.getDefault().getTaskById(2));
-                System.out.println(Managers.getDefault().getTaskById(3));
-                System.out.println(Managers.getDefault().getTaskById(1231));
-                System.out.println(Managers.getDefault().getTaskById(6));
-                System.out.println(Managers.getDefault().getTaskById(1));
-                System.out.println(Managers.getDefault().getTaskById(4));
-                System.out.println(Managers.getDefault().getTaskById(3));
-                System.out.println(Managers.getDefault().getTaskById(2));
-                System.out.println(Managers.getDefault().getTaskById(5));
-                System.out.println(Managers.getDefault().getTaskById(0));
-                System.out.println(Managers.getDefault().getTaskById(2));
-                System.out.println(Managers.getDefault().getTaskById(0));
+                System.out.println(managers.getDefault().getTaskById(1));
+                System.out.println(managers.getDefault().getTaskById(4));
+                System.out.println(managers.getDefault().getTaskById(0));
+                System.out.println(managers.getDefault().getTaskById(2));
+                System.out.println(managers.getDefault().getTaskById(3));
+                System.out.println(managers.getDefault().getTaskById(1231));
+                System.out.println(managers.getDefault().getTaskById(6));
+                System.out.println(managers.getDefault().getTaskById(1));
+                System.out.println(managers.getDefault().getTaskById(4));
+                System.out.println(managers.getDefault().getTaskById(3));
+                System.out.println(managers.getDefault().getTaskById(2));
+                System.out.println(managers.getDefault().getTaskById(5));
+                System.out.println(managers.getDefault().getTaskById(0));
+                System.out.println(managers.getDefault().getTaskById(2));
+                System.out.println(managers.getDefault().getTaskById(0));
             } else if (command == 5) {
-                Managers.getDefault().refreshTask(new Task("newName", "new description",
+                managers.getDefault().refreshTask(new Task("newName", "new description",
                                 Status.IN_PROGRESS),
                         0);
-                Managers.getDefault().refreshSubTask(new SubTask("new subTaskName", "new description",
+                managers.getDefault().refreshSubTask(new SubTask("new subTaskName", "new description",
                         Status.DONE, 1),4);
-                Managers.getDefault().refreshEpic(new Epic("newEpicName", "new epic description",
+                managers.getDefault().refreshEpic(new Epic("newEpicName", "new epic description",
                         Status.DONE), 1);
             } else if (command == 6) {
-                Managers.getDefault().deleteTaskById(3);
-                Managers.getDefault().deleteTaskById(3);
-                Managers.getDefault().deleteTaskById(2);
+                managers.getDefault().deleteTaskById(3);
+                managers.getDefault().deleteTaskById(3);
+                managers.getDefault().deleteTaskById(2);
             } else if (command == 7) {
-                System.out.println(Managers.getDefault().getSubTasksByEpic(2));
-                System.out.println(Managers.getDefault().getSubTasksByEpic(3));
+                System.out.println(managers.getDefault().getSubTasksByEpic(2));
+                System.out.println(managers.getDefault().getSubTasksByEpic(3));
             }  else if (command == 8) {
-               Managers.getDefaultHistoryManager().getHistory().forEach(System.out::println);
+               managers.getDefaultHistoryManager().getHistory().forEach(System.out::println);
             }
             else if (command == 0){
                 break;

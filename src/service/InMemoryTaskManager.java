@@ -5,9 +5,10 @@ import model.SubTask;
 import model.Task;
 
 import java.util.HashMap;
+import java.util.List;
 
 
-public class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManager implements TaskManager, HistoryManager {
     private HashMap<Integer, Task> allTasks = new HashMap<>();
     private HashMap<Integer, Epic> allEpicTasks = new HashMap<>();
     private HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
@@ -75,7 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (allSubTasks.containsKey(id))
             task = allSubTasks.get(id);
         if (task instanceof Task)
-            Managers.getDefaultHistoryManager().add(task);
+            add(task);
         return task;
 
     }
@@ -131,5 +132,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     private int generateId() {
         return taskCount++;
+    }
+
+    @Override
+    public void add(Task task) {
+        Managers.getDefaultHistoryManager().add(task);
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return Managers.getDefaultHistoryManager().getHistory();
     }
 }
