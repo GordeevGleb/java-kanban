@@ -3,134 +3,133 @@ package service;
 import model.Epic;
 import model.SubTask;
 import model.Task;
-import service.storage.EpicTasks;
-import service.storage.SubTasks;
-import service.storage.Tasks;
 
 import java.util.HashMap;
+import java.util.List;
 
 
-public class InMemoryTaskManager  implements TaskManager {
-    private EpicTasks epicTasks = new EpicTasks();
-    private Tasks tasks = new Tasks();
-    private SubTasks subTasks = new SubTasks();
-    private static int taskCount;
-private HistoryManager inMemoryHistoryManager;
+public class InMemoryTaskManager implements TaskManager {
+    private HashMap<Integer, Task> allTasks = new HashMap<>();
+    private HashMap<Integer, Epic> allEpicTasks = new HashMap<>();
+    private HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
+    private HistoryManager historyManager;
 
-    public InMemoryTaskManager(HistoryManager inMemoryHistoryManager) {
-        this.inMemoryHistoryManager = inMemoryHistoryManager;
+    public InMemoryTaskManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
     }
 
-    @Override
+    private static int taskCount;
+@Override
     public Task createTask(Task task) {
         task.setId(generateId());
-      tasks.save(task);
+        allTasks.put(task.getId(), task);
         return task;
     }
 @Override
     public Epic createEpic(Epic epic) {
         epic.setId(generateId());
-    epicTasks.save(epic);
+        allEpicTasks.put(epic.getId(), epic);
         return epic;
     }
 @Override
     public SubTask createSubTask(SubTask subTask) {
-        if (epicTasks.get().containsKey(subTask.getMasterId())) {
-            Epic epic = epicTasks.get().get(subTask.getMasterId());
+        if (allEpicTasks.containsKey(subTask.getMasterId())) {
+            Epic epic = allEpicTasks.get(subTask.getMasterId());
             subTask.setId(generateId());
             epic.addSubtask(subTask);
-       subTasks.save(subTask);
+            allSubTasks.put(subTask.getId(), subTask);
         }
         return subTask;
     }
 @Override
     public HashMap<Integer, Task> getAllTasks() {
-        return tasks.get();
+        return allTasks;
     }
 @Override
     public HashMap<Integer, Epic> getAllEpic() {
-        return epicTasks.get();
+        return allEpicTasks;
     }
 @Override
     public HashMap<Integer, SubTask> getAllSubTasks() {
-        return subTasks.get();
+        return allSubTasks;
     }
 @Override
     public HashMap<Integer, Task> deleteAllTasks() {
-        tasks.get().clear();
-        return tasks.get();
+        allTasks.clear();
+        return allTasks;
     }
 @Override
     public HashMap<Integer, Epic> deleteAllEpics() {
-        epicTasks.get().clear();
-        return epicTasks.get();
+        allSubTasks.clear();
+        allEpicTasks.clear();
+        return allEpicTasks;
     }
 @Override
     public HashMap<Integer, SubTask> deleteAllSubTasks() {
-        for (Epic epic : epicTasks.get().values()) {
+        for (Epic epic : allEpicTasks.values()) {
             epic.removeAllSteps();
         }
-        subTasks.get().clear();
-        return subTasks.get();
+        allSubTasks.clear();
+        return allSubTasks;
     }
 @Override
     public Task getTaskById(int id) {
         Task task = null;
-        if (tasks.get().containsKey(id))
-            task = tasks.get().get(id);
-        if (epicTasks.get().containsKey(id))
-            task = epicTasks.get().get(id);
-        if (subTasks.get().containsKey(id))
-            task = subTasks.get().get(id);
+        if (allTasks.containsKey(id))
+            task = allTasks.get(id);
+        if (allEpicTasks.containsKey(id))
+            task = allEpicTasks.get(id);
+        if (allSubTasks.containsKey(id))
+            task = allSubTasks.get(id);
         if (task instanceof Task)
-            inMemoryHistoryManager.add(task);
+            historyManager.add(task);
         return task;
 
     }
 @Override
     public void deleteTaskById(int id) {
-        if (tasks.get().containsKey(id)) {
-            tasks.get().remove(id);
+        if (allTasks.containsKey(id)) {
+            allTasks.remove(id);
 
-        } else if (epicTasks.get().containsKey(id)) {
-            epicTasks.get().remove(id);
-        } else if (subTasks.get().containsKey(id)) {
-            int masterId = subTasks.get().get(id).getMasterId();
-            epicTasks.get().get(masterId).removeStepById(id);
-            subTasks.get().remove(id);
+        } else if (allEpicTasks.containsKey(id)) {
+            allEpicTasks.remove(id);
+        } else if (allSubTasks.containsKey(id)) {
+            int masterId = allSubTasks.get(id).getMasterId();
+            allEpicTasks.get(masterId).removeStepById(id);
+            allSubTasks.remove(id);
         }
     }
 @Override
     public void refreshTask(Task task, int taskId) {
-        if (tasks.get().containsKey(taskId)) {
+        if (allTasks.containsKey(taskId)) {
             createTask(new Task(task.getName(), task.getDescription(), task.getStatus()));
-            tasks.get().remove(taskId);
+            allTasks.remove(taskId);
         }
     }
     @Override
     public void refreshEpic(Epic epic, int taskId) {
-        if (epicTasks.get().containsKey(taskId)) {
+        if (allEpicTasks.containsKey(taskId)) {
             createEpic(new Epic(epic.getName(), epic.getDescription(), epic.getStatus()));
-            epicTasks.get().remove(taskId);
-            subTasks.get().values().removeIf(subTask -> subTask.getMasterId() == taskId);
+            allEpicTasks.remove(taskId);
+            allSubTasks.values().removeIf(subTask -> subTask.getMasterId() == taskId);
         }
     }
     @Override
     public void refreshSubTask(SubTask subTask, int taskId) {
-        if (subTasks.get().containsKey(taskId)) {
-            int masterKey = subTasks.get().get(taskId).getMasterId();
-            Epic epic = epicTasks.get().get(masterKey);
+        if (allSubTasks.containsKey(taskId)) {
+            int masterKey = allSubTasks.get(taskId).getMasterId();
+            Epic epic = allEpicTasks.get(masterKey);
             epic.removeStepById(taskId);
             createSubTask(new SubTask(subTask.getName(), subTask.getDescription(), subTask.getStatus(),
                     subTask.getMasterId()));
 
-            subTasks.get().remove(taskId);
+            allSubTasks.remove(taskId);
         }
     }
     @Override
     public SubTask getSubTasksByEpic(int epicId) {
         SubTask resultTask = null;
-        for (SubTask subTask : subTasks.get().values()) {
+        for (SubTask subTask : allSubTasks.values()) {
             if (subTask.getMasterId() == epicId)
                 resultTask = subTask;
         }
@@ -140,6 +139,5 @@ private HistoryManager inMemoryHistoryManager;
     private static int generateId() {
         return taskCount++;
     }
-
 
 }

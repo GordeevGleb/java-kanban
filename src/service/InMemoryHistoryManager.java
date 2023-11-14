@@ -1,7 +1,6 @@
 package service;
 
 import model.Task;
-import service.storage.ViewList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,22 +8,22 @@ import java.util.List;
 
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private ViewList viewList = new ViewList();
+    private List<Task> taskHistory = new ArrayList<>();
     private static final int MAX_SIZE = 10;
 
     @Override
     public void add(Task task) {
-        if (viewList.getViewList().size() < MAX_SIZE)
-            viewList.add(task);
+        if (taskHistory.size() < MAX_SIZE)
+            taskHistory.add(task);
         else {
-            viewList.getViewList().remove(0);
-            viewList.add(task);
+            taskHistory.remove(0);
+            taskHistory.add(task);
         }
     }
 
 
 @Override
     public  List<Task> getHistory() {
-        return viewList.getViewList();
+        return taskHistory;
     }
 }
