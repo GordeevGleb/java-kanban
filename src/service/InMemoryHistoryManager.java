@@ -14,10 +14,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        if (viewList.getHistory().size() < MAX_SIZE)
+        if (viewList.getViewList().size() < MAX_SIZE)
             viewList.add(task);
         else {
-            viewList.getHistory().remove(0);
+            viewList.getViewList().remove(0);
             viewList.add(task);
         }
     }
@@ -25,6 +25,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
 @Override
     public  List<Task> getHistory() {
-        return viewList.getHistory();
+        return viewList.getViewList();
     }
 }

@@ -8,17 +8,18 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-public class ViewList implements HistoryManager {
+public class ViewList {
     private  List<Task> viewList = new ArrayList<>();
 
 
-    @Override
-    public void add(Task task) {
-        viewList.add(task);
+    public List<Task> getViewList() {
+        return viewList;
     }
 
-    @Override
-    public List<Task> getHistory() {
-        return viewList;
+    public void setViewList(List<Task> viewList) {
+        this.viewList = viewList;
+    }
+    public void add(Task task) {
+        viewList.add(task);
     }
 }
