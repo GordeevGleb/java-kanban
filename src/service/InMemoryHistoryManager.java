@@ -9,22 +9,22 @@ import java.util.List;
 
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private List<Task> taskHistory = ViewList.getViewList();
+    private ViewList viewList = new ViewList();
     private static final int MAX_SIZE = 10;
 
     @Override
     public void add(Task task) {
-        if (taskHistory.size() < MAX_SIZE)
-            taskHistory.add(task);
+        if (viewList.getHistory().size() < MAX_SIZE)
+            viewList.add(task);
         else {
-            taskHistory.remove(0);
-            taskHistory.add(task);
+            viewList.getHistory().remove(0);
+            viewList.add(task);
         }
     }
 
 
 @Override
     public  List<Task> getHistory() {
-        return taskHistory;
+        return viewList.getHistory();
     }
 }

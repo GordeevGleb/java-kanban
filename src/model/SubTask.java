@@ -12,9 +12,6 @@ public class SubTask extends Task {
     public int getMasterId() {
         return masterId;
     }
-    public void setMasterId(int masterId) {
-        this.masterId = masterId;
-    }
 
     @Override
     public String toString() {

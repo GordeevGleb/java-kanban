@@ -1,20 +1,27 @@
 package service.storage;
 
 import model.Epic;
+import model.Savable;
 import model.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
-public class EpicTasks {
-    private static HashMap<Integer, Epic> allEpics = new HashMap<>();
-    public static void add(Epic task) {
-        allEpics.put(task.getId(),  task);
+import java.util.HashMap;
+
+
+public class EpicTasks implements Savable<Epic> {
+    private  HashMap<Integer, Epic> allEpics = new HashMap<>();
+
+
+
+    @Override
+    public void save(Epic epic) {
+        allEpics.put(epic.getId(), epic);
     }
 
-    public static HashMap<Integer, Epic> getAllEpics(){
+    @Override
+    public HashMap<Integer, Epic> get() {
         return allEpics;
     }
+
 
 }

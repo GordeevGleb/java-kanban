@@ -1,21 +1,27 @@
 package service.storage;
 
-import model.Epic;
+
+import model.Savable;
 import model.SubTask;
-import model.Task;
 
-import java.util.ArrayList;
+
+
 import java.util.HashMap;
-import java.util.List;
 
-public class SubTasks{
-    private static HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
 
-    public static HashMap<Integer, SubTask> getAllSubTasks(){
+public class SubTasks implements Savable<SubTask> {
+    private  HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
+
+
+    @Override
+    public void save(SubTask subTask) {
+        allSubTasks.put(subTask.getId(), subTask);
+    }
+
+    @Override
+    public HashMap<Integer, SubTask> get() {
         return allSubTasks;
     }
-    public static void add(SubTask task){
-allSubTasks.put(task.getId(),  task);
-    }
+
 
 }

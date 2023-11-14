@@ -6,7 +6,6 @@ import model.SubTask;
 import model.Task;
 
 import java.util.HashMap;
-import java.util.List;
 
 public interface TaskManager {
 
