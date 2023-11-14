@@ -3,26 +3,36 @@ package service;
 import model.Epic;
 import model.SubTask;
 import model.Task;
+import service.storage.EpicTasks;
+import service.storage.SubTasks;
+import service.storage.Tasks;
 
 import java.util.HashMap;
-import java.util.List;
 
 
-public class InMemoryTaskManager implements TaskManager, HistoryManager {
-    private HashMap<Integer, Task> allTasks = new HashMap<>();
-    private HashMap<Integer, Epic> allEpicTasks = new HashMap<>();
-    private HashMap<Integer, SubTask> allSubTasks = new HashMap<>();
-    private int taskCount;
-@Override
+public class InMemoryTaskManager  implements TaskManager {
+    private HashMap<Integer, Task> allTasks = Tasks.getAllTasks();
+    private HashMap<Integer, Epic> allEpicTasks = EpicTasks.getAllEpics();
+    private HashMap<Integer, SubTask> allSubTasks = SubTasks.getAllSubTasks();
+    private static int taskCount;
+private HistoryManager inMemoryHistoryManager;
+
+    public InMemoryTaskManager(HistoryManager inMemoryHistoryManager) {
+        this.inMemoryHistoryManager = inMemoryHistoryManager;
+    }
+
+    @Override
     public Task createTask(Task task) {
         task.setId(generateId());
         allTasks.put(task.getId(), task);
+        Tasks.add(task);
         return task;
     }
 @Override
     public Epic createEpic(Epic epic) {
         epic.setId(generateId());
         allEpicTasks.put(epic.getId(), epic);
+        EpicTasks.add(epic);
         return epic;
     }
 @Override
@@ -32,6 +42,7 @@ public class InMemoryTaskManager implements TaskManager, HistoryManager {
             subTask.setId(generateId());
             epic.addSubtask(subTask);
             allSubTasks.put(subTask.getId(), subTask);
+            SubTasks.add(subTask);
         }
         return subTask;
     }
@@ -76,7 +87,7 @@ public class InMemoryTaskManager implements TaskManager, HistoryManager {
         if (allSubTasks.containsKey(id))
             task = allSubTasks.get(id);
         if (task instanceof Task)
-            add(task);
+            inMemoryHistoryManager.add(task);
         return task;
 
     }
@@ -130,17 +141,9 @@ public class InMemoryTaskManager implements TaskManager, HistoryManager {
         return resultTask;
     }
 
-    private int generateId() {
+    private static int generateId() {
         return taskCount++;
     }
 
-    @Override
-    public void add(Task task) {
-        Managers.getDefaultHistoryManager().add(task);
-    }
 
-    @Override
-    public List<Task> getHistory() {
-        return Managers.getDefaultHistoryManager().getHistory();
-    }
 }

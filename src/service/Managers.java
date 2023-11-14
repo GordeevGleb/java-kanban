@@ -1,12 +1,16 @@
 package service;
 
+import model.Task;
+
+import java.util.List;
+
 public class Managers {
-    private  InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
-    private static InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
+
+    public  HistoryManager getDefaultHistoryManager() {
+        return new InMemoryHistoryManager();
+    }
     public  TaskManager getDefault() {
-        return inMemoryTaskManager;
+        return new InMemoryTaskManager(getDefaultHistoryManager());
     }
-    public static HistoryManager getDefaultHistoryManager() {
-        return inMemoryHistoryManager;
-    }
+
 }

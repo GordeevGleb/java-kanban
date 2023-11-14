@@ -2,7 +2,7 @@ package model;
 
 import java.util.Objects;
 
-public class SubTask extends Task{
+public class SubTask extends Task {
     private int masterId;
     public SubTask(String name, String description, Status status, int masterId) {
         super(name, description, status);
