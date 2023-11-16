@@ -69,12 +69,6 @@ public class Task {
         return Objects.hash(getId());
     }
 
-
-    public void checkStatus() {
-        status = this.getStatus();
-    }
-
-
     public String setEmoji() {
         String emojiList = null;
         switch (this.getStatus()) {

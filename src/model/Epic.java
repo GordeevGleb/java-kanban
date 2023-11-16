@@ -32,7 +32,7 @@ public class Epic extends Task {
     }
 
 
-    @Override
+
     public void checkStatus() {
         ArrayList<Status> statusList = new ArrayList<>();
         for (Integer key : epicSteps.keySet()) {
@@ -48,10 +48,6 @@ public class Epic extends Task {
             this.setStatus(Status.NEW);
     }
 
-    @Override
-    public String setEmoji() {
-        return super.setEmoji();
-    }
 
 
 
