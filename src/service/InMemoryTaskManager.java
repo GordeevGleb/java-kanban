@@ -142,4 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
         return taskCount++;
     }
 
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
 }
