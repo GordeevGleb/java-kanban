@@ -36,9 +36,6 @@ public class Node<Task>{
         return data;
     }
 
-    public void setData(Task data) {
-        this.data = data;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -57,12 +57,15 @@ public class InMemoryTaskManager implements TaskManager {
 @Override
     public HashMap<Integer, Task> deleteAllTasks() {
        tasks.clear();
+       historyManager.getHistory().removeIf(task -> (task instanceof Task));
         return tasks;
     }
 @Override
     public HashMap<Integer, Epic> deleteAllEpics() {
         subTasks.clear();
+        historyManager.getHistory().removeIf(task -> (task instanceof SubTask));
         epicTasks.clear();
+        historyManager.getHistory().removeIf(task -> (task instanceof Epic));
         return epicTasks;
     }
 @Override
@@ -71,6 +74,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.removeAllSteps();
         }
         subTasks.clear();
+        historyManager.getHistory().removeIf(task -> (task instanceof SubTask));
         return subTasks;
     }
 @Override
@@ -93,6 +97,10 @@ public class InMemoryTaskManager implements TaskManager {
             tasks.remove(id);
 
         } else if (epicTasks.containsKey(id)) {
+            for (Task task : historyManager.getHistory()) {
+                if ((task instanceof SubTask) && (((SubTask) task).getMasterId() == id))
+                    historyManager.remove(task.getId());
+            }
             epicTasks.remove(id);
 
         } else if (subTasks.containsKey(id)) {
@@ -100,6 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
             epicTasks.get(masterId).removeStepById(id);
             subTasks.remove(id);
         }
+        historyManager.remove(id);
     }
 @Override
     public void refreshTask(Task task, int taskId) {

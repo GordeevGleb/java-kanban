@@ -3,7 +3,6 @@ package service;
 import model.Node;
 import model.Task;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -74,12 +73,17 @@ public class InMemoryHistoryManager implements HistoryManager {
             return nodeMap.containsKey(node.getData().getId());
         }
 
+
         public void removeNode(Node<Task> node) {
             Node<Task> oldNode = nodeMap.get(node.getData().getId());
             if (!(oldNode.equals(firstNode)))
                 oldNode.getPrev().setNext(oldNode.getNext());
+            else
+                firstNode = firstNode.getNext();
             if (!(oldNode.equals(lastNode)))
                 oldNode.getNext().setPrev(oldNode.getPrev());
+            else
+                lastNode = lastNode.getPrev();
 
             oldNode.setPrev(null);
             oldNode.setNext(null);
