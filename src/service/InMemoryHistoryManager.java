@@ -1,8 +1,10 @@
 package service;
 
-import model.Node;
-import model.Task;
 
+import model.Epic;
+import model.SubTask;
+import model.Task;
+import service.util.*;
 import java.util.*;
 
 
@@ -11,19 +13,36 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        Node<Task> newNode = new Node<>(task);
-        if (historyList.checkDublicates(newNode)) {
-            Node<Task> oldNode = historyList.nodeMap.get(task.getId());
-            historyList.removeNode(oldNode);
-        }
-            historyList.linkLast(newNode);
-
+        historyList.linkLast(task);
     }
 
     @Override
     public void remove(int id) {
-        if (historyList.nodeMap.containsKey(id))
-            historyList.removeNode(historyList.nodeMap.get(id));
+        for (Task task : historyList.getTasks()) {
+            if (task.getId() == id) {
+                if (task.getClass().equals(Epic.class)) {
+                    for (Task task1 : historyList.getTasks()) {
+                        if ((task1.getClass().equals(SubTask.class) && (((SubTask) task1).getMasterId() == id))) {
+                            historyList.removeNode(task1);
+                        }
+                    }
+                }
+                historyList.removeNode(task);
+            }
+        }
+    }
+    @Override
+    public void remove(String s) {
+        switch (s) {
+            case "Task" :
+                historyList.removeAllTasks();
+                break;
+            case "Epic" :
+                historyList.removeAllEpic();
+            case "SubTask" :
+                historyList.removeAllSubTasks();
+                break;
+        }
     }
 
 
@@ -32,63 +51,4 @@ public class InMemoryHistoryManager implements HistoryManager {
         return historyList.getTasks();
     }
 
-    public class CustomLinkedList {
-        private HashMap<Integer, Node> nodeMap;
-        private Node firstNode;
-        private Node lastNode;
-
-        public CustomLinkedList() {
-            this.nodeMap = new HashMap<>();
-        }
-
-
-        public void linkLast(Node<Task> node) {
-
-            if (nodeMap.isEmpty()) {
-                firstNode = node;
-                lastNode = node;
-            }
-             else
-                lastNode.setNext(node);
-
-             node.setPrev(lastNode);
-             lastNode = node;
-
-            nodeMap.put(node.getData().getId(), node);
-        }
-
-        public ArrayList<Task> getTasks() {
-            ArrayList<Task> resultList = new ArrayList<>();
-            Node<Task> currentNode = firstNode;
-            while (currentNode != null) {
-                resultList.add(currentNode.getData());
-                currentNode = currentNode.getNext();
-            }
-
-
-            return resultList;
-        }
-
-        public boolean checkDublicates(Node<Task> node) {
-            return nodeMap.containsKey(node.getData().getId());
-        }
-
-
-        public void removeNode(Node<Task> node) {
-            Node<Task> oldNode = nodeMap.get(node.getData().getId());
-            if (!(oldNode.equals(firstNode)))
-                oldNode.getPrev().setNext(oldNode.getNext());
-            else
-                firstNode = firstNode.getNext();
-            if (!(oldNode.equals(lastNode)))
-                oldNode.getNext().setPrev(oldNode.getPrev());
-            else
-                lastNode = lastNode.getPrev();
-
-            oldNode.setPrev(null);
-            oldNode.setNext(null);
-
-            nodeMap.remove(node.getData().getId());
-        }
-    }
 }

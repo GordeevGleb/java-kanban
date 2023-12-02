@@ -6,7 +6,7 @@ import model.Task;
 
 
 import java.util.HashMap;
-
+import java.util.Iterator;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -57,15 +57,14 @@ public class InMemoryTaskManager implements TaskManager {
 @Override
     public HashMap<Integer, Task> deleteAllTasks() {
        tasks.clear();
-       historyManager.getHistory().removeIf(task -> (task instanceof Task));
+       historyManager.remove("Task");
         return tasks;
     }
 @Override
     public HashMap<Integer, Epic> deleteAllEpics() {
         subTasks.clear();
-        historyManager.getHistory().removeIf(task -> (task instanceof SubTask));
         epicTasks.clear();
-        historyManager.getHistory().removeIf(task -> (task instanceof Epic));
+        historyManager.remove("Epic");
         return epicTasks;
     }
 @Override
@@ -74,7 +73,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.removeAllSteps();
         }
         subTasks.clear();
-        historyManager.getHistory().removeIf(task -> (task instanceof SubTask));
+        historyManager.remove("SubTask");
         return subTasks;
     }
 @Override
@@ -95,15 +94,15 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTaskById(int id) {
         if (tasks.containsKey(id)) {
             tasks.remove(id);
+        }
 
-        } else if (epicTasks.containsKey(id)) {
-            for (Task task : historyManager.getHistory()) {
-                if ((task instanceof SubTask) && (((SubTask) task).getMasterId() == id))
-                    historyManager.remove(task.getId());
-            }
+        else if (epicTasks.containsKey(id)) {
+            subTasks.values().removeIf(subTask -> subTask.getMasterId() == id);
+            epicTasks.get(id).removeAllSteps();
             epicTasks.remove(id);
+        }
 
-        } else if (subTasks.containsKey(id)) {
+        else if (subTasks.containsKey(id)) {
             int masterId = subTasks.get(id).getMasterId();
             epicTasks.get(masterId).removeStepById(id);
             subTasks.remove(id);

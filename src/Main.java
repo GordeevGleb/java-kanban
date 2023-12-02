@@ -33,9 +33,9 @@ public class Main {
                 System.out.println(taskManager.getAllEpic());
                 System.out.println(taskManager.getAllSubTasks());
             } else if (command == 3) {
-                taskManager.deleteAllTasks();
-                taskManager.deleteAllEpics();
-                taskManager.deleteAllSubTasks();
+              //  taskManager.deleteAllTasks();
+               taskManager.deleteAllEpics();
+             //   taskManager.deleteAllSubTasks();
             } else if (command == 4) {
                 System.out.println(taskManager.getTaskById(1));
                 System.out.println(taskManager.getTaskById(3));
@@ -61,8 +61,8 @@ public class Main {
                 taskManager.refreshEpic(new Epic("newEpicName", "new epic description",
                         Status.DONE), 1);
             } else if (command == 6) {
-                taskManager.deleteTaskById(3);
-                taskManager.deleteTaskById(3);
+             //   taskManager.deleteTaskById(3);
+             //   taskManager.deleteTaskById(3);
                 taskManager.deleteTaskById(2);
             } else if (command == 7) {
                 System.out.println(taskManager.getSubTasksByEpic(2));
