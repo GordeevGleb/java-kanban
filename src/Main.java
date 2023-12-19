@@ -8,7 +8,7 @@ import service.Managers;
 import service.TaskManager;
 
 import java.util.Scanner;
-public class Main {
+/* public class Main {
     public static void main(String[] args) {
         Managers managers = new Managers();
         InMemoryTaskManager taskManager =(InMemoryTaskManager) managers.getDefault();
@@ -33,9 +33,9 @@ public class Main {
                 System.out.println(taskManager.getAllEpic());
                 System.out.println(taskManager.getAllSubTasks());
             } else if (command == 3) {
-              //  taskManager.deleteAllTasks();
+                taskManager.deleteAllTasks();
                taskManager.deleteAllEpics();
-             //   taskManager.deleteAllSubTasks();
+                taskManager.deleteAllSubTasks();
             } else if (command == 4) {
                 System.out.println(taskManager.getTaskById(1));
                 System.out.println(taskManager.getTaskById(3));
@@ -54,12 +54,11 @@ public class Main {
                 System.out.println(taskManager.getTaskById(0));
             } else if (command == 5) {
                 taskManager.refreshTask(new Task("newName", "new description",
-                                Status.IN_PROGRESS),
-                        0);
+                                Status.IN_PROGRESS), 0);
                 taskManager.refreshSubTask(new SubTask("new subTaskName", "new description",
-                        Status.DONE, 1),4);
+                        Status.DONE, 1), 5);
                 taskManager.refreshEpic(new Epic("newEpicName", "new epic description",
-                        Status.DONE), 1);
+                        Status.DONE), 2);
             } else if (command == 6) {
              //   taskManager.deleteTaskById(3);
              //   taskManager.deleteTaskById(3);
@@ -86,3 +85,4 @@ public class Main {
         System.out.println("8 - История просмотров");
     }
 }
+*/

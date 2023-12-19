@@ -1,0 +1,4 @@
+id,type,name,status,description,epic
+0,TASK,Вырастить дерево,NEW,123,
+1,EPIC,Воспитать сына,DONE,|,
+2,SUBTASK,Почистить зубы,DONE,123123,1

@@ -45,6 +45,9 @@ public class CustomLinkedList {
 
         return resultList;
     }
+    public Task getTask(int taskId) {
+        return nodeMap.get(taskId).data;
+    }
 
     public boolean isExist(Task task) {
         return nodeMap.containsKey(task.getId());
@@ -95,7 +98,7 @@ public class CustomLinkedList {
         }
     }
 
-    public class Node<Task> {
+    public static class Node<Task> {
         private Task data;
         private Node prev;
         private Node next;

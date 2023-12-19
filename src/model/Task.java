@@ -1,5 +1,7 @@
 package model;
 
+import service.InMemoryTaskManager;
+
 import java.util.Objects;
 
 public class Task {
@@ -46,6 +48,15 @@ public class Task {
     public Status getStatus() {
         return status;
     }
+    public Task fromString(String source) {
+        String[] strings = source.split(", ");
+        Task task = null;
+        if (source.startsWith("Task")) {
+            
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -53,7 +64,7 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
-                '}'+ setEmoji();
+                '}';
     }
 
     @Override
@@ -67,21 +78,5 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
-    }
-
-    public String setEmoji() {
-        String emojiList = null;
-        switch (this.getStatus()) {
-            case NEW:
-                emojiList = EmojiCollection.NEW_TASK;
-                break;
-            case IN_PROGRESS:
-                emojiList = EmojiCollection.WORKING_ON;
-                break;
-            case DONE:
-                emojiList = EmojiCollection.DONE;
-                break;
-        }
-        return emojiList;
     }
 }

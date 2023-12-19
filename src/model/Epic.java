@@ -48,14 +48,9 @@ public class Epic extends Task {
             this.setStatus(Status.NEW);
     }
 
-
-
-
     @Override
     public String toString() {
-        return "Epic{" +
-                "epicStepsSize=" + epicSteps.size() +
-                "} " + super.toString();
+        return "Epic{} " + super.toString();
     }
 
     @Override
