@@ -1,4 +1,6 @@
 id,type,name,status,description,epic
-0,TASK,Вырастить дерево,NEW,123,
+3,TASK,Вырастить дерево,NEW,123,
 1,EPIC,Воспитать сына,DONE,|,
-2,SUBTASK,Почистить зубы,DONE,123123,1
+5,SUBTASK,Почистить зубы,DONE,123123,1
+
+1,3,5

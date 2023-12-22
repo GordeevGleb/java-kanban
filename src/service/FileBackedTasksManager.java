@@ -11,24 +11,17 @@ import java.util.List;
 
 import static java.nio.file.Files.createFile;
 import static model.TaskType.*;
-                                                                         /*Ярослав, здравствуй.
-                                                                         Заранее извиняюсь за то, что отправляю
-                                                                         на ревью заведомо нерабочий вариант, однако,
-                                                                         руководствуясь принципом "за спрос не бьют",
-                                                                         решил таким образом спросить твоего совета.
 
 
-                                                                          */
-
-public class FileBackedTasksManager extends InMemoryTaskManager {
+ public class FileBackedTasksManager extends InMemoryTaskManager {
     private File file;
 
-    private final String HEAD = "id,type,name,status,description,epic\n";
+    private static final String HEAD = "id,type,name,status,description,epic\n";
 
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
-    public void save() {
+    private void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
             bufferedWriter.write(HEAD);
             for (Task task : getAllTasks().values()) {
@@ -51,7 +44,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             throw new ManagerSaveException("Ошибка при сохранении данных в файл");
         }
     }
-    public String taskToString(Task task) {
+    private String taskToString(Task task) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(task.getId()).append(",");
         if (task instanceof Epic) {
@@ -70,25 +63,26 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String resultString = stringBuilder.toString();
         return resultString;
     }
-    public Task taskFromString(String value) {
+    private Task taskFromString(String value) {
         Task task = null;
         String[] strings = value.split(",");
-        TaskType taskType = TaskType.valueOf(strings[1]);
-        switch (taskType) {
-            case EPIC:
-                task = createEpic(new Epic(strings[2], strings[4], Status.valueOf(strings[3])));
-                break;
-            case SUBTASK :
-                task = createSubTask(new SubTask(strings[2], strings[4],
-                    Status.valueOf(strings[3]), Integer.valueOf(strings[5])));
-                break;
-            case TASK:
-                task = createTask(new Task(strings[2], strings[4], Status.valueOf(strings[3])));
-
+        if (!isHistoryString(value)) {
+            TaskType taskType = TaskType.valueOf(strings[1]);
+            switch (taskType) {
+                case EPIC:
+                    super.createEpic(new Epic(strings[2], strings[4], Status.valueOf(strings[3])));
+                    break;
+                case SUBTASK :
+                    super.createSubTask(new SubTask(strings[2], strings[4], Status.valueOf(strings[3]), 1));
+                    break;
+                case TASK:
+                    super.createTask(new Task(strings[2], strings[4], Status.valueOf(strings[3])));
+            }
         }
+
         return task;
     }
-    public static String historyToString(HistoryManager manager) {
+    private static String historyToString(HistoryManager manager) {
         StringBuilder stringBuilder = new StringBuilder();
         for (Task task : manager.getHistory()) {
             stringBuilder.append(task.getId()).append(",");
@@ -96,7 +90,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String result = stringBuilder.toString();
         return result;
     }
-    public static List<Integer> historyFromString(String value) {
+    private static List<Integer> historyFromString(String value) {
         List<Integer> resultList = new ArrayList<>();
         String[] strings = value.split(",");
         for (String s : strings) {
@@ -104,49 +98,55 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
         return resultList;
     }
-    public static FileBackedTasksManager loadFromFile(File file) {
+    private static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             bufferedReader.readLine();
             while (bufferedReader.ready()) {
                 String line = bufferedReader.readLine();
-                if (line.isEmpty()) {
-                    break;
+                if (!line.trim().isEmpty()) {
+                    fileBackedTasksManager.taskFromString(line);
+                    if (isHistoryString(line)) {
+                        historyFromString(line);
                 }
-                fileBackedTasksManager.taskFromString(line);
-            }
-            while (bufferedReader.ready()) {
-                String line = bufferedReader.readLine();
-                if (!line.isEmpty()) {
-                    historyFromString(line);
-                }
-            }
         }
+            }
+            }
+
         catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки данных из файла");
         }
         return fileBackedTasksManager;
     }
+    public static boolean isHistoryString(String string) {
+try {
+   Integer.parseInt(string.replaceAll(",", ""));
+    return true;
+}
+catch (NumberFormatException e) {
+    return false;
+}
+    }
 
     @Override
     public Task createTask(Task task) {
-        super.createTask(task);
+        Task resultTask =  super.createTask(task);
         save();
-        return task;
+        return resultTask;
     }
 
     @Override
     public Epic createEpic(Epic epic) {
-        super.createEpic(epic);
+        Epic resultEpic =  super.createEpic(epic);
         save();
-        return epic;
+        return resultEpic;
     }
 
     @Override
     public SubTask createSubTask(SubTask subTask) {
-        super.createSubTask(subTask);
+       SubTask resultSubTask = super.createSubTask(subTask);
         save();
-        return subTask;
+        return resultSubTask;
     }
 
     @Override
@@ -194,8 +194,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public static void main(String[] args) {
         FileBackedTasksManager fileBackedTasksManager
                 = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
-        fileBackedTasksManager.createTask(new Task("Вырастить дерево", "123", Status.NEW));
-        fileBackedTasksManager.createEpic(new Epic("Воспитать сына", "|", Status.IN_PROGRESS));
-        fileBackedTasksManager.createSubTask(new SubTask("Почистить зубы", "123123", Status.DONE, 1));
+        fileBackedTasksManager.getTaskById(1);
     }
 }

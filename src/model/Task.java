@@ -48,14 +48,7 @@ public class Task {
     public Status getStatus() {
         return status;
     }
-    public Task fromString(String source) {
-        String[] strings = source.split(", ");
-        Task task = null;
-        if (source.startsWith("Task")) {
-            
-        }
-        return null;
-    }
+
 
     @Override
     public String toString() {
