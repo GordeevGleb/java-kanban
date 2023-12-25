@@ -1,6 +1,10 @@
 id,type,name,status,description,epic
-3,TASK,Вырастить дерево,NEW,123,
-1,EPIC,Воспитать сына,DONE,|,
-5,SUBTASK,Почистить зубы,DONE,123123,1
+0,SUBTASK,testSubTask,DONE,testDescription,3
+1,EPIC,testEpic,NEW,<><>,
+2,TASK,testTask,DONE,123,
+3,EPIC,EPICTask,NEW,someDesc,
+4,EPIC,EPIC,IN_PROGRESS,DDD,
+5,SUBTASK,newSub,DONE,>>>,3
+8,SUBTASK,Sub,IN_PROGRESS,o1,0
 
-1,3,5
+0,3,5,
