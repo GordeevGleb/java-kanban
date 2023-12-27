@@ -73,17 +73,20 @@ import static model.TaskType.*;
                  case EPIC:
                      task = new Epic(taskName, taskDescription, taskStatus);
                      task.setId(taskId);
+                     generateId();
                      super.epicTasks.put(taskId, (Epic) task);
                      break;
                  case SUBTASK:
                      int masterId = Integer.parseInt(strings[5]);
                      task = new SubTask(taskName, taskDescription, taskStatus, masterId);
                      task.setId(taskId);
+                     generateId();
                      super.subTasks.put(taskId, (SubTask) task);
                      break;
                  case TASK:
                      task = new Task(taskName, taskDescription, taskStatus);
                      task.setId(taskId);
+                     generateId();
                      super.tasks.put(taskId, task);
              }
          }
@@ -191,11 +194,10 @@ import static model.TaskType.*;
      public static void main(String[] args) {
          FileBackedTasksManager fileBackedTasksManager
                  = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
-         fileBackedTasksManager.createTask(
-                 new SubTask("testSubTask", "testDescription", Status.DONE, 3));
-         fileBackedTasksManager.createTask(new Epic("testEpic", "<><>", Status.NEW));
+         fileBackedTasksManager.createTask(new Task("<>", "<>", Status.IN_PROGRESS));
          fileBackedTasksManager.getTaskById(0);
          fileBackedTasksManager.getTaskById(3);
          fileBackedTasksManager.getTaskById(5);
+         fileBackedTasksManager.getTaskById(1);
      }
  }
