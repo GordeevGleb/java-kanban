@@ -101,7 +101,7 @@ return subTask;
             epicTasks.get(masterId).removeStepById(id);
             subTasks.remove(id);
         }
-        historyManager.remove(id);
+    historyManager.remove(id);
     }
 @Override
     public void refreshTask(Task task, int taskId) {

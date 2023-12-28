@@ -87,12 +87,14 @@ import static model.TaskType.*;
                      task.setId(taskId);
                      super.tasks.put(taskId, task);
              }
+             if (taskCount <= findMaxTaskId()) {
+                 taskCount = findMaxTaskId() +1;
+             }
          }
-         findMaxTaskId();
          return task;
      }
 
-     void findMaxTaskId() {
+     int findMaxTaskId() {
          int resultId = -1;
          for (int id : tasks.keySet()) {
              resultId = Math.max(resultId, id);
@@ -103,9 +105,7 @@ import static model.TaskType.*;
          for (int id : subTasks.keySet()) {
              resultId = Math.max(id, resultId);
          }
-         if (taskCount <= resultId) {
-             taskCount = resultId + 1;
-         }
+         return resultId;
      }
 
 
@@ -211,8 +211,9 @@ import static model.TaskType.*;
          try {
              super.deleteTaskById(id);
              save();
-         } catch (NullPointerException e) {
-             throw new ManagerSaveException("Задачи с таким id нет в файле.");
+         }
+         catch (NullPointerException e) {
+             throw new ManagerSaveException("Задачи с таким id нет в файле");
          }
      }
 
@@ -232,5 +233,6 @@ import static model.TaskType.*;
          fileBackedTasksManager.getTaskById(3);
          fileBackedTasksManager.getTaskById(5);
          fileBackedTasksManager.getTaskById(1);
+         fileBackedTasksManager.deleteTaskById(1);
      }
  }

@@ -18,15 +18,17 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-      Task task = historyList.getTask(id);
-      if (task.getClass().equals(Epic.class)) {
-          for (Task task1 : historyList.getTasks()) {
-              if (task1.getClass().equals(SubTask.class) && (((SubTask) task1).getMasterId() == task.getId())) {
-                  historyList.removeNode(task1);
-              }
-          }
-      }
-      historyList.removeNode(task);
+        Task task = historyList.getTask(id);
+        if (task.getClass().equals(Epic.class)) {
+            for (Task task1 : historyList.getTasks()) {
+                if (task1.getClass().equals(SubTask.class) && (((SubTask) task1).getMasterId() == task.getId())) {
+                    historyList.removeNode(task1);
+                }
+            }
+        }
+        if (historyList.isExist(task)) {
+            historyList.removeNode(task);
+        }
     }
     @Override
     public void remove(String s) {
