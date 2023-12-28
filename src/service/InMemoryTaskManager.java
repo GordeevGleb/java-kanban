@@ -6,7 +6,7 @@ import model.Task;
 
 
 import java.util.HashMap;
-
+import java.util.Map;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -14,7 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
      HashMap<Integer, Epic> epicTasks = new HashMap<>();
      HashMap<Integer, SubTask> subTasks = new HashMap<>();
      HistoryManager historyManager = Managers.getDefaultHistoryManager();
-    private static int taskCount;
+     static int taskCount;
 
 
 
@@ -133,6 +133,7 @@ return subTask;
         }
         return resultTask;
     }
+
 
      static int generateId() {
         return taskCount++;

@@ -4,13 +4,15 @@ import model.*;
 import service.util.ManagerSaveException;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import static model.TaskType.*;
 
 
  public class FileBackedTasksManager extends InMemoryTaskManager {
      private File file;
-     private String historyString;
 
      private static final String HEAD = "id,type,name,status,description,epic\n";
 
@@ -35,7 +37,6 @@ import static model.TaskType.*;
              }
              bufferedWriter.newLine();
              bufferedWriter.write(historyToString(getHistoryManager()));
-
 
          } catch (IOException e) {
              throw new ManagerSaveException("Ошибка при сохранении данных в файл");
@@ -73,25 +74,40 @@ import static model.TaskType.*;
                  case EPIC:
                      task = new Epic(taskName, taskDescription, taskStatus);
                      task.setId(taskId);
-                     generateId();
                      super.epicTasks.put(taskId, (Epic) task);
                      break;
                  case SUBTASK:
                      int masterId = Integer.parseInt(strings[5]);
                      task = new SubTask(taskName, taskDescription, taskStatus, masterId);
                      task.setId(taskId);
-                     generateId();
                      super.subTasks.put(taskId, (SubTask) task);
                      break;
                  case TASK:
                      task = new Task(taskName, taskDescription, taskStatus);
                      task.setId(taskId);
-                     generateId();
                      super.tasks.put(taskId, task);
              }
          }
+         findMaxTaskId();
          return task;
      }
+
+     void findMaxTaskId() {
+         int resultId = -1;
+         for (int id : tasks.keySet()) {
+             resultId = Math.max(resultId, id);
+         }
+         for (int id : epicTasks.keySet()) {
+             resultId = Math.max(id, resultId);
+         }
+         for (int id : subTasks.keySet()) {
+             resultId = Math.max(id, resultId);
+         }
+         if (taskCount <= resultId) {
+             taskCount = resultId + 1;
+         }
+     }
+
 
      private static String historyToString(HistoryManager manager) {
          StringBuilder stringBuilder = new StringBuilder();
@@ -162,26 +178,42 @@ import static model.TaskType.*;
 
      @Override
      public void deleteAllTasks() {
-         super.deleteAllTasks();
-         save();
+         try {
+             super.deleteAllTasks();
+             save();
+         } catch (NullPointerException e) {
+             throw new ManagerSaveException("Задачи уже удалены, либо не найдены.");
+         }
      }
 
      @Override
      public void deleteAllEpics() {
-         super.deleteAllEpics();
-         save();
+         try {
+             super.deleteAllEpics();
+             save();
+         } catch (NullPointerException e) {
+             throw new ManagerSaveException("Задачи уже удалены, либо не найдены.");
+         }
      }
 
      @Override
      public void deleteAllSubTasks() {
-         super.deleteAllSubTasks();
-         save();
+         try {
+             super.deleteAllSubTasks();
+             save();
+         } catch (NullPointerException e) {
+             throw new ManagerSaveException("Задачи уже удалены, либо не найдены.");
+         }
      }
 
      @Override
      public void deleteTaskById(int id) {
-         super.deleteTaskById(id);
-         save();
+         try {
+             super.deleteTaskById(id);
+             save();
+         } catch (NullPointerException e) {
+             throw new ManagerSaveException("Задачи с таким id нет в файле.");
+         }
      }
 
      @Override
@@ -191,10 +223,11 @@ import static model.TaskType.*;
          return resultTask;
      }
 
+
      public static void main(String[] args) {
          FileBackedTasksManager fileBackedTasksManager
                  = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
-         fileBackedTasksManager.createTask(new Task("<>", "<>", Status.IN_PROGRESS));
+         fileBackedTasksManager.createTask(new Epic("<>", "<>", Status.IN_PROGRESS));
          fileBackedTasksManager.getTaskById(0);
          fileBackedTasksManager.getTaskById(3);
          fileBackedTasksManager.getTaskById(5);
