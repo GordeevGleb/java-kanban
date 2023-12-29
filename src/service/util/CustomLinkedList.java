@@ -67,7 +67,7 @@ public class CustomLinkedList {
             } else {
                 lastNode = oldNode.prev;
             }
-            nodeMap.remove(oldNode);
+            nodeMap.remove(oldNode.data.getId());
         }
     }
     public void removeAllTasks() {

@@ -13,22 +13,19 @@ public class Epic extends Task {
     public HashMap<Integer, SubTask> getEpicSteps() {
         return epicSteps;
     }
-    public HashMap<Integer, SubTask> addSubtask(SubTask subTask) {
+    public void addSubtask(SubTask subTask) {
         epicSteps.put(subTask.getId(), subTask);
         checkStatus();
-        return epicSteps;
     }
 
-    public HashMap<Integer, SubTask> removeAllSteps() {
+    public void removeAllSteps() {
         epicSteps.clear();
         checkStatus();
-        return epicSteps;
     }
 
-    public HashMap<Integer, SubTask> removeStepById(int id) {
-        epicSteps.remove(id);
+    public void removeStepById(int id) {
+         epicSteps.remove(id);
         checkStatus();
-        return epicSteps;
     }
 
 

@@ -3,10 +3,7 @@ package service;
 import model.*;
 import service.util.ManagerSaveException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static model.TaskType.*;
 
@@ -55,16 +52,19 @@ import static model.TaskType.*;
          }
          stringBuilder.append(task.getName()).append(",")
                  .append(task.getStatus()).append(",")
-                 .append(task.getDescription()).append(",")
-                 .append((task instanceof SubTask) ? ((SubTask) task).getMasterId() : "");
+                 .append(task.getDescription());
+         if (task instanceof SubTask) {
+             stringBuilder.append(",").append(((SubTask) task).getMasterId());
+         }
+
          String resultString = stringBuilder.toString();
          return resultString;
      }
 
      private Task taskFromString(String value) {
          Task task = null;
-         String[] strings = value.split(",");
          if (!isHistoryString(value)) {
+             String[] strings = value.split(",");
              int taskId = Integer.parseInt(strings[0]);
              TaskType taskType = TaskType.valueOf(strings[1]);
              String taskName = strings[2];
@@ -80,6 +80,8 @@ import static model.TaskType.*;
                      int masterId = Integer.parseInt(strings[5]);
                      task = new SubTask(taskName, taskDescription, taskStatus, masterId);
                      task.setId(taskId);
+                     Epic epic = epicTasks.get(masterId);
+                     epic.addSubtask((SubTask) task);
                      super.subTasks.put(taskId, (SubTask) task);
                      break;
                  case TASK:
@@ -87,35 +89,17 @@ import static model.TaskType.*;
                      task.setId(taskId);
                      super.tasks.put(taskId, task);
              }
-             if (taskCount <= findMaxTaskId()) {
-                 taskCount = findMaxTaskId() +1;
-             }
          }
          return task;
      }
 
-     int findMaxTaskId() {
-         int resultId = -1;
-         for (int id : tasks.keySet()) {
-             resultId = Math.max(resultId, id);
-         }
-         for (int id : epicTasks.keySet()) {
-             resultId = Math.max(id, resultId);
-         }
-         for (int id : subTasks.keySet()) {
-             resultId = Math.max(id, resultId);
-         }
-         return resultId;
-     }
-
 
      private static String historyToString(HistoryManager manager) {
-         StringBuilder stringBuilder = new StringBuilder();
+         StringJoiner stringJoiner = new StringJoiner(",");
          for (Task task : manager.getHistory()) {
-             stringBuilder.append(task.getId()).append(",");
+             stringJoiner.add(String.valueOf(task.getId()));
          }
-         String result = stringBuilder.toString();
-         return result;
+         return stringJoiner.toString();
      }
 
      private static List<Integer> historyFromString(String value) {
@@ -129,17 +113,26 @@ import static model.TaskType.*;
 
      private static FileBackedTasksManager loadFromFile(File file) {
          FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
+         int maxId = -1;
          try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
              bufferedReader.readLine();
              while (bufferedReader.ready()) {
                  String line = bufferedReader.readLine();
                  if (!line.trim().isEmpty()) {
-                     fileBackedTasksManager.taskFromString(line);
                      if (isHistoryString(line)) {
                          historyFromString(line);
+                     } else {
+                         Task task = fileBackedTasksManager.taskFromString(line);
+                         if (!task.equals(null)) {
+                             int id = task.getId();
+                             if (maxId < id) {
+                                 maxId = id;
+                             }
+                         }
                      }
                  }
              }
+             taskMaxId = maxId + 1;
          } catch (IOException e) {
              throw new ManagerSaveException("Ошибка загрузки данных из файла");
          }
@@ -211,8 +204,7 @@ import static model.TaskType.*;
          try {
              super.deleteTaskById(id);
              save();
-         }
-         catch (NullPointerException e) {
+         } catch (NullPointerException e) {
              throw new ManagerSaveException("Задачи с таким id нет в файле");
          }
      }
@@ -228,11 +220,14 @@ import static model.TaskType.*;
      public static void main(String[] args) {
          FileBackedTasksManager fileBackedTasksManager
                  = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
-         fileBackedTasksManager.createTask(new Epic("<>", "<>", Status.IN_PROGRESS));
-         fileBackedTasksManager.getTaskById(0);
-         fileBackedTasksManager.getTaskById(3);
-         fileBackedTasksManager.getTaskById(5);
-         fileBackedTasksManager.getTaskById(1);
-         fileBackedTasksManager.deleteTaskById(1);
+       //     fileBackedTasksManager.createEpic(new Epic("111", "111",Status.IN_PROGRESS));
+       // fileBackedTasksManager.createSubTask(new SubTask("111", "2220",Status.IN_PROGRESS, 1));
+        fileBackedTasksManager.createSubTask(new SubTask("2221", "<>", Status.IN_PROGRESS, 6));
+         fileBackedTasksManager.getTaskById(16);
+         fileBackedTasksManager.getTaskById(2);
+         fileBackedTasksManager.getTaskById(6);
+         fileBackedTasksManager.getTaskById(10);
+          fileBackedTasksManager.deleteTaskById(6);
+
      }
  }

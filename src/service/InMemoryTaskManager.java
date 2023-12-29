@@ -14,7 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
      HashMap<Integer, Epic> epicTasks = new HashMap<>();
      HashMap<Integer, SubTask> subTasks = new HashMap<>();
      HistoryManager historyManager = Managers.getDefaultHistoryManager();
-     static int taskCount;
+     static int taskMaxId;
 
 
 
@@ -54,13 +54,13 @@ return subTask;
 @Override
     public void deleteAllTasks() {
        tasks.clear();
-       historyManager.remove("Task");
+       historyManager.removeByName("Task");
     }
 @Override
     public void deleteAllEpics() {
         subTasks.clear();
         epicTasks.clear();
-        historyManager.remove("Epic");
+        historyManager.removeByName("Epic");
     }
 @Override
     public void deleteAllSubTasks() {
@@ -68,7 +68,7 @@ return subTask;
             epic.removeAllSteps();
         }
         subTasks.clear();
-        historyManager.remove("SubTask");
+        historyManager.removeByName("SubTask");
     }
 @Override
     public Task getTaskById(int id) {
@@ -98,10 +98,16 @@ return subTask;
 
         else if (subTasks.containsKey(id)) {
             int masterId = subTasks.get(id).getMasterId();
-            epicTasks.get(masterId).removeStepById(id);
+            Epic epic = epicTasks.get(masterId);
+            epic.removeStepById(id);
+          //  epicTasks.get(masterId).removeStepById(id);
             subTasks.remove(id);
         }
-    historyManager.remove(id);
+        for (Task task : historyManager.getHistory()) {
+            if (task.getId() == id) {
+                historyManager.remove(task.getId());
+            }
+        }
     }
 @Override
     public void refreshTask(Task task, int taskId) {
@@ -136,7 +142,7 @@ return subTask;
 
 
      static int generateId() {
-        return taskCount++;
+        return taskMaxId++;
     }
 
     public HistoryManager getHistoryManager() {
