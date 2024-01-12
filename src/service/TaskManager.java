@@ -6,6 +6,7 @@ import model.SubTask;
 import model.Task;
 
 import java.util.HashMap;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -41,7 +42,7 @@ public interface TaskManager {
 
     void refreshSubTask(SubTask subTask, int subTaskId);
 
-    SubTask getSubTasksByEpic(int epicId);
+    HashMap<Integer, SubTask> getSubTasksByEpic(int epicId);
 }
 
 

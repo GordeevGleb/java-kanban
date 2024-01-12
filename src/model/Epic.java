@@ -1,13 +1,22 @@
 package model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Epic extends Task {
     private HashMap<Integer, SubTask> epicSteps = new HashMap<>();
+
+    private LocalTime endTime;
+
     public Epic(String name, String description, Status status) {
         super(name, description, status);
+    }
+
+    public Epic(String name, String description, Status status, LocalTime startTime, int duration) {
+        super(name, description, status, startTime, duration);
     }
 
     public HashMap<Integer, SubTask> getEpicSteps() {
@@ -27,15 +36,44 @@ public class Epic extends Task {
          epicSteps.remove(id);
         checkStatus();
     }
+public void setStartTime() {
+        startTime = epicSteps.values().stream()
+                .filter(subTask -> Optional.ofNullable(subTask.getStartTime()).isPresent())
+                .map(Task::getStartTime)
+                .min(LocalTime::compareTo)
+                .orElse(null);
+}
+    @Override
+    public  LocalTime getStartTime() {
+        return startTime;
+    }
 
-
+    @Override
+    public int getDuration() {
+        return duration;
+    }
+    public void setDuration() {
+        duration = epicSteps.values().stream()
+                .mapToInt(subtask -> subtask.getDuration())
+                .sum();
+    }
+public void setEndTime() {
+    endTime = epicSteps.values().stream()
+            .filter(subTask -> Optional.ofNullable(subTask.getEndTime()).isPresent())
+            .map(SubTask::getEndTime)
+            .max(LocalTime::compareTo)
+            .orElse(null);
+}
+    @Override
+    public LocalTime getEndTime() {
+        return endTime;
+    }
 
     public void checkStatus() {
         ArrayList<Status> statusList = new ArrayList<>();
         for (Integer key : epicSteps.keySet()) {
             statusList.add(epicSteps.get(key).getStatus());
         }
-
         if (!(statusList.contains(Status.NEW)) && !(statusList.contains(Status.IN_PROGRESS))
                 && (statusList.size() > 0))
             this.setStatus(Status.DONE);

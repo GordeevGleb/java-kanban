@@ -1,11 +1,18 @@
 package model;
 
+import java.time.LocalTime;
 import java.util.Objects;
 
 public class SubTask extends Task{
     private int masterId;
     public SubTask(String name, String description, Status status, int masterId) {
         super(name, description, status);
+        this.masterId = masterId;
+    }
+
+    public SubTask(
+            String name, String description, Status status, LocalTime startTime, int duration, int masterId) {
+        super(name, description, status, startTime, duration);
         this.masterId = masterId;
     }
 

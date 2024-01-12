@@ -3,6 +3,9 @@ package service;
 import model.*;
 import service.util.ManagerSaveException;
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static model.TaskType.*;
@@ -11,7 +14,7 @@ import static model.TaskType.*;
  public class FileBackedTasksManager extends InMemoryTaskManager {
      private File file;
 
-     private static final String HEAD = "id,type,name,status,description,epic\n";
+     private static final String HEAD = "id,type,name,status,description,epic,startTime,endTime\n";
 
      public FileBackedTasksManager(File file) {
          this.file = file;
@@ -25,6 +28,9 @@ import static model.TaskType.*;
                  bufferedWriter.newLine();
              }
              for (Epic epic : getAllEpic().values()) {
+                 epic.setStartTime();
+                 epic.setDuration();
+                 epic.setEndTime();
                  bufferedWriter.write(taskToString(epic));
                  bufferedWriter.newLine();
              }
@@ -55,8 +61,10 @@ import static model.TaskType.*;
                  .append(task.getDescription());
          if (task instanceof SubTask) {
              stringBuilder.append(",").append(((SubTask) task).getMasterId());
+         } else {
+             stringBuilder.append(",").append("-");
          }
-
+         stringBuilder.append(",").append(task.getStartTime()).append(",").append(task.getEndTime());
          String resultString = stringBuilder.toString();
          return resultString;
      }
@@ -70,29 +78,49 @@ import static model.TaskType.*;
              String taskName = strings[2];
              Status taskStatus = Status.valueOf(strings[3]);
              String taskDescription = strings[4];
+             LocalTime startTime = parseTime(strings[6]);
+             LocalTime endTime = parseTime(strings[7]);
+             int duration = getDuration(startTime, endTime);
              switch (taskType) {
                  case EPIC:
-                     task = new Epic(taskName, taskDescription, taskStatus);
+                     task = new Epic(taskName, taskDescription, taskStatus, startTime, duration);
                      task.setId(taskId);
                      super.epicTasks.put(taskId, (Epic) task);
                      break;
                  case SUBTASK:
                      int masterId = Integer.parseInt(strings[5]);
-                     task = new SubTask(taskName, taskDescription, taskStatus, masterId);
+                     task = new SubTask(taskName, taskDescription, taskStatus, startTime, duration, masterId);
                      task.setId(taskId);
                      Epic epic = epicTasks.get(masterId);
                      epic.addSubtask((SubTask) task);
                      super.subTasks.put(taskId, (SubTask) task);
+                     timeSortedSet.add(task);
                      break;
                  case TASK:
-                     task = new Task(taskName, taskDescription, taskStatus);
+                     task = new Task(taskName, taskDescription, taskStatus, startTime, duration);
                      task.setId(taskId);
                      super.tasks.put(taskId, task);
+                     timeSortedSet.add(task);
              }
          }
          return task;
      }
 
+     LocalTime parseTime(String s) {
+         try {
+             return LocalTime.parse(s);
+         } catch (DateTimeParseException e) {
+             return null;
+         }
+     }
+
+     int getDuration(LocalTime startTime, LocalTime endTime) {
+         try {
+             return (int) Duration.between(startTime, endTime).toMinutes();
+         } catch (NullPointerException e) {
+             return 0;
+         }
+     }
 
      private static String historyToString(HistoryManager manager) {
          StringJoiner stringJoiner = new StringJoiner(",");
@@ -216,18 +244,24 @@ import static model.TaskType.*;
          return resultTask;
      }
 
-
      public static void main(String[] args) {
          FileBackedTasksManager fileBackedTasksManager
                  = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
-       //     fileBackedTasksManager.createEpic(new Epic("111", "111",Status.IN_PROGRESS));
-       // fileBackedTasksManager.createSubTask(new SubTask("111", "2220",Status.IN_PROGRESS, 1));
-        fileBackedTasksManager.createSubTask(new SubTask("2221", "<>", Status.IN_PROGRESS, 6));
+         fileBackedTasksManager.createEpic(new Epic("111", "111", Status.IN_PROGRESS));
+         fileBackedTasksManager.createTask(new Task("testTask", "testTaskDescription", Status.NEW,
+                 LocalTime.of(9, 15), 45));
+         fileBackedTasksManager.createTask(new Task("testTask2", "testTaskDescription2", Status.NEW,
+                 LocalTime.of(8, 40), 15));
+         fileBackedTasksManager.createSubTask(
+                 new SubTask("111", "2220", Status.IN_PROGRESS, LocalTime.of(11, 32), 30, 0));
+         fileBackedTasksManager.createSubTask(
+                 new SubTask("2221", "<>", Status.IN_PROGRESS, 0));
          fileBackedTasksManager.getTaskById(16);
          fileBackedTasksManager.getTaskById(2);
          fileBackedTasksManager.getTaskById(6);
          fileBackedTasksManager.getTaskById(10);
-          fileBackedTasksManager.deleteTaskById(6);
+         fileBackedTasksManager.deleteTaskById(6);
+
 
      }
  }

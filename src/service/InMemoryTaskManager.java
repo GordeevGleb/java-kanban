@@ -3,74 +3,98 @@ package service;
 import model.Epic;
 import model.SubTask;
 import model.Task;
+import service.util.ManagerSaveException;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class InMemoryTaskManager implements TaskManager {
-     HashMap<Integer, Task> tasks = new HashMap<>();
-     HashMap<Integer, Epic> epicTasks = new HashMap<>();
-     HashMap<Integer, SubTask> subTasks = new HashMap<>();
-     HistoryManager historyManager = Managers.getDefaultHistoryManager();
-     static int taskMaxId;
+    HashMap<Integer, Task> tasks = new HashMap<>();
+    HashMap<Integer, Epic> epicTasks = new HashMap<>();
+    HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    HistoryManager historyManager = Managers.getDefaultHistoryManager();
+    static int taskMaxId;
+    static TreeSet<Task> timeSortedSet = new TreeSet<>(
+            Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
 
 
-
-@Override
+    @Override
     public Task createTask(Task task) {
+        if (isTimeCross(task)) {
+            throw new ManagerSaveException("Время выполнения пересекается с уже существуеющей задачей");
+        }
         task.setId(generateId());
         tasks.put(task.getId(), task);
-return task;
+        timeSortedSet.add(task);
+        return task;
     }
-@Override
+
+    @Override
     public Epic createEpic(Epic epic) {
+        if (isTimeCross(epic)) {
+            throw new ManagerSaveException("Время выполнения пересекается с уже существуеющей задачей");
+        }
         epic.setId(generateId());
         epicTasks.put(epic.getId(), epic);
-return epic;
+        return epic;
     }
-@Override
+
+    @Override
     public SubTask createSubTask(SubTask subTask) {
-            Epic epic = epicTasks.get(subTask.getMasterId());
-            subTask.setId(generateId());
-            epic.addSubtask(subTask);
-            subTasks.put(subTask.getId(), subTask);
-return subTask;
+        Epic epic = epicTasks.get(subTask.getMasterId());
+        if (isTimeCross(subTask)) {
+            throw new ManagerSaveException("Время выполнения пересекается с уже существуеющей задачей");
+        }
+        subTask.setId(generateId());
+        epic.addSubtask(subTask);
+        subTasks.put(subTask.getId(), subTask);
+        timeSortedSet.add(subTask);
+        return subTask;
 
     }
-@Override
+
+    @Override
     public HashMap<Integer, Task> getAllTasks() {
         return tasks;
     }
-@Override
+
+    @Override
     public HashMap<Integer, Epic> getAllEpic() {
         return epicTasks;
     }
-@Override
+
+    @Override
     public HashMap<Integer, SubTask> getAllSubTasks() {
         return subTasks;
     }
-@Override
+
+    @Override
     public void deleteAllTasks() {
-       tasks.clear();
-       historyManager.removeByName("Task");
+        tasks.clear();
+        historyManager.removeByName("Task");
+        timeSortedSet.removeIf(task -> task.getClass().equals(Task.class));
     }
-@Override
+
+    @Override
     public void deleteAllEpics() {
         subTasks.clear();
         epicTasks.clear();
         historyManager.removeByName("Epic");
     }
-@Override
+
+    @Override
     public void deleteAllSubTasks() {
         for (Epic epic : epicTasks.values()) {
             epic.removeAllSteps();
         }
         subTasks.clear();
         historyManager.removeByName("SubTask");
+        timeSortedSet.removeIf(task -> task.getClass().equals(SubTask.class));
     }
-@Override
+
+    @Override
     public Task getTaskById(int id) {
         Task task = null;
         if (tasks.containsKey(id))
@@ -84,24 +108,22 @@ return subTask;
         return task;
 
     }
-@Override
+
+    @Override
     public void deleteTaskById(int id) {
         if (tasks.containsKey(id)) {
             tasks.remove(id);
-        }
-
-        else if (epicTasks.containsKey(id)) {
+            timeSortedSet.removeIf(task -> task.getId() == id);
+        } else if (epicTasks.containsKey(id)) {
             subTasks.values().removeIf(subTask -> subTask.getMasterId() == id);
             epicTasks.get(id).removeAllSteps();
             epicTasks.remove(id);
-        }
-
-        else if (subTasks.containsKey(id)) {
+        } else if (subTasks.containsKey(id)) {
             int masterId = subTasks.get(id).getMasterId();
             Epic epic = epicTasks.get(masterId);
             epic.removeStepById(id);
-          //  epicTasks.get(masterId).removeStepById(id);
             subTasks.remove(id);
+            timeSortedSet.removeIf(task -> task.getId() == id);
         }
         for (Task task : historyManager.getHistory()) {
             if (task.getId() == id) {
@@ -109,39 +131,71 @@ return subTask;
             }
         }
     }
-@Override
+
+    @Override
     public void refreshTask(Task task, int taskId) {
-      Task savedTask = tasks.get(taskId);
-      savedTask.setName(task.getName());
-      savedTask.setDescription(task.getDescription());
-      savedTask.setStatus(task.getStatus());
+        if (isTimeCross(task)) {
+            throw new ManagerSaveException("Время выполнения пересекается с уже существуеющей задачей");
+        }
+        Task savedTask = tasks.get(taskId);
+        savedTask.setName(task.getName());
+        savedTask.setDescription(task.getDescription());
+        savedTask.setStatus(task.getStatus());
+
     }
+
     @Override
     public void refreshEpic(Epic epic, int epicId) {
+        if (isTimeCross(epic)) {
+            throw new ManagerSaveException("Время выполнения пересекается с уже существуеющей задачей");
+        }
         Epic savedEpic = epicTasks.get(epicId);
         savedEpic.setName(epic.getName());
         savedEpic.setDescription(epic.getDescription());
         savedEpic.setStatus(epic.getStatus());
+
     }
+
     @Override
     public void refreshSubTask(SubTask subTask, int subTaskId) {
-    SubTask savedSubTask = subTasks.get(subTaskId);
-    savedSubTask.setName(subTask.getName());
-    savedSubTask.setDescription(subTask.getDescription());
-    savedSubTask.setStatus(subTask.getStatus());
+        if (isTimeCross(subTask)) {
+            throw new ManagerSaveException("Время выполнения пересекается с уже существуеющей задачей");
+        }
+        SubTask savedSubTask = subTasks.get(subTaskId);
+        savedSubTask.setName(subTask.getName());
+        savedSubTask.setDescription(subTask.getDescription());
+        savedSubTask.setStatus(subTask.getStatus());
     }
+
     @Override
-    public SubTask getSubTasksByEpic(int epicId) {
-        SubTask resultTask = null;
+    public HashMap<Integer, SubTask> getSubTasksByEpic(int epicId) {
+        HashMap<Integer, SubTask> resultList = null;
         for (SubTask subTask : subTasks.values()) {
             if (subTask.getMasterId() == epicId)
-                resultTask = subTask;
+                resultList.put(subTask.getId(), subTask);
         }
-        return resultTask;
+        return resultList;
     }
 
+    public static TreeSet<Task> getPrioritizedTasks() {
+        return timeSortedSet;
+    }
 
-     static int generateId() {
+    public boolean isTimeCross(Task task) {
+        boolean isCrossed = false;
+        for (Task sortedTask : timeSortedSet) {
+            if (Optional.ofNullable(sortedTask.getStartTime()).isEmpty() ||
+                    Optional.ofNullable(task.getStartTime()).isEmpty()) {
+                continue;
+            } else if (task.getStartTime().isAfter(sortedTask.getStartTime())
+                    && (task.getStartTime().isBefore(sortedTask.getEndTime()))) {
+                isCrossed = true;
+            }
+        }
+        return isCrossed;
+    }
+
+    static int generateId() {
         return taskMaxId++;
     }
 

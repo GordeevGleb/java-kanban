@@ -2,13 +2,18 @@ package model;
 
 import service.InMemoryTaskManager;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Task {
     private String name;
     private String description;
     private int id;
     private Status status;
+     LocalTime startTime;
+     int duration;
 
 
 
@@ -16,6 +21,14 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(String name, String description, Status status, LocalTime startTime, int duration) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public void setDescription(String description) {
@@ -49,6 +62,22 @@ public class Task {
         return status;
     }
 
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public LocalTime getEndTime() {
+        if (Optional.ofNullable(startTime).isPresent() && duration != 0) {
+            return startTime.plusMinutes(duration);
+        }
+        else {
+            return null;
+        }
+    }
 
     @Override
     public String toString() {
