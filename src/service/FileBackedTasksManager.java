@@ -28,9 +28,9 @@ import static model.TaskType.*;
                  bufferedWriter.newLine();
              }
              for (Epic epic : getAllEpic().values()) {
-                 epic.setStartTime();
-                 epic.setDuration();
-                 epic.setEndTime();
+                 epic.setEpicStartTime();
+                 epic.setEpicDuration();
+                 epic.setEpicEndTime();
                  bufferedWriter.write(taskToString(epic));
                  bufferedWriter.newLine();
              }
@@ -39,7 +39,7 @@ import static model.TaskType.*;
                  bufferedWriter.newLine();
              }
              bufferedWriter.newLine();
-             bufferedWriter.write(historyToString(getHistoryManager()));
+             bufferedWriter.write(historyToString(getHistory()));
 
          } catch (IOException e) {
              throw new ManagerSaveException("Ошибка при сохранении данных в файл");
@@ -80,7 +80,7 @@ import static model.TaskType.*;
              String taskDescription = strings[4];
              LocalTime startTime = parseTime(strings[6]);
              LocalTime endTime = parseTime(strings[7]);
-             int duration = getDuration(startTime, endTime);
+             long duration = getDuration(startTime, endTime);
              switch (taskType) {
                  case EPIC:
                      task = new Epic(taskName, taskDescription, taskStatus, startTime, duration);
@@ -106,7 +106,7 @@ import static model.TaskType.*;
          return task;
      }
 
-     LocalTime parseTime(String s) {
+     private LocalTime parseTime(String s) {
          try {
              return LocalTime.parse(s);
          } catch (DateTimeParseException e) {
@@ -114,17 +114,17 @@ import static model.TaskType.*;
          }
      }
 
-     int getDuration(LocalTime startTime, LocalTime endTime) {
+     private long getDuration(LocalTime startTime, LocalTime endTime) {
          try {
-             return (int) Duration.between(startTime, endTime).toMinutes();
+             return  Duration.between(startTime, endTime).toMinutes();
          } catch (NullPointerException e) {
              return 0;
          }
      }
 
-     private static String historyToString(HistoryManager manager) {
+     private static String historyToString(List<Task> history) {
          StringJoiner stringJoiner = new StringJoiner(",");
-         for (Task task : manager.getHistory()) {
+         for (Task task : history) {
              stringJoiner.add(String.valueOf(task.getId()));
          }
          return stringJoiner.toString();
@@ -167,7 +167,7 @@ import static model.TaskType.*;
          return fileBackedTasksManager;
      }
 
-     public static boolean isHistoryString(String string) {
+     private static boolean isHistoryString(String string) {
          try {
              Integer.parseInt(string.replaceAll(",", ""));
              return true;
@@ -244,6 +244,11 @@ import static model.TaskType.*;
          return resultTask;
      }
 
+     @Override
+     public TreeSet<Task> getPrioritizedTasks() {
+         return super.getPrioritizedTasks();
+     }
+
      public static void main(String[] args) {
          FileBackedTasksManager fileBackedTasksManager
                  = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
@@ -256,12 +261,5 @@ import static model.TaskType.*;
                  new SubTask("111", "2220", Status.IN_PROGRESS, LocalTime.of(11, 32), 30, 0));
          fileBackedTasksManager.createSubTask(
                  new SubTask("2221", "<>", Status.IN_PROGRESS, 0));
-         fileBackedTasksManager.getTaskById(16);
-         fileBackedTasksManager.getTaskById(2);
-         fileBackedTasksManager.getTaskById(6);
-         fileBackedTasksManager.getTaskById(10);
-         fileBackedTasksManager.deleteTaskById(6);
-
-
      }
  }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.FileBackedTasksManager;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class FileBackedTaskManagerTest {
         int taskId = task.getId();
         Task savedTask = fileBackedTasksManager.getTaskById(taskId);
         assertEquals(task, savedTask);
-        List<Task> savedHistoryList = fileBackedTasksManager.getHistoryManager().getHistory();
+        List<Task> savedHistoryList = fileBackedTasksManager.getHistory();
         assertEquals(1, savedHistoryList.size());
     }
 

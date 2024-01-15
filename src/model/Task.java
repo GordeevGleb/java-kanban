@@ -1,6 +1,7 @@
 package model;
 
 import service.InMemoryTaskManager;
+import service.util.ManagerSaveException;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -12,8 +13,8 @@ public class Task {
     private String description;
     private int id;
     private Status status;
-     LocalTime startTime;
-     int duration;
+    private LocalTime startTime;
+    private long duration;
 
 
 
@@ -23,7 +24,7 @@ public class Task {
         this.status = status;
     }
 
-    public Task(String name, String description, Status status, LocalTime startTime, int duration) {
+    public Task(String name, String description, Status status, LocalTime startTime, long duration) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -62,16 +63,27 @@ public class Task {
         return status;
     }
 
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(long duration) {
+        if (duration < 0) {
+            throw new ManagerSaveException("Продолжительность выполнения задания должна быть больше нуля");
+        }
+        this.duration = duration;
+    }
+
     public LocalTime getStartTime() {
         return startTime;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
     public LocalTime getEndTime() {
-        if (Optional.ofNullable(startTime).isPresent() && duration != 0) {
+        if (startTime != null) {
             return startTime.plusMinutes(duration);
         }
         else {

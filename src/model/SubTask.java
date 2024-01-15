@@ -11,7 +11,7 @@ public class SubTask extends Task{
     }
 
     public SubTask(
-            String name, String description, Status status, LocalTime startTime, int duration, int masterId) {
+            String name, String description, Status status, LocalTime startTime, long duration, int masterId) {
         super(name, description, status, startTime, duration);
         this.masterId = masterId;
     }

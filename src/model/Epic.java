@@ -15,7 +15,7 @@ public class Epic extends Task {
         super(name, description, status);
     }
 
-    public Epic(String name, String description, Status status, LocalTime startTime, int duration) {
+    public Epic(String name, String description, Status status, LocalTime startTime, long duration) {
         super(name, description, status, startTime, duration);
     }
 
@@ -25,39 +25,37 @@ public class Epic extends Task {
     public void addSubtask(SubTask subTask) {
         epicSteps.put(subTask.getId(), subTask);
         checkStatus();
+        timeRefresh();
     }
 
     public void removeAllSteps() {
         epicSteps.clear();
         checkStatus();
+        timeRefresh();
     }
 
     public void removeStepById(int id) {
          epicSteps.remove(id);
         checkStatus();
+        timeRefresh();
     }
-public void setStartTime() {
-        startTime = epicSteps.values().stream()
+
+public void setEpicStartTime() {
+        LocalTime value = epicSteps.values().stream()
                 .filter(subTask -> Optional.ofNullable(subTask.getStartTime()).isPresent())
                 .map(Task::getStartTime)
                 .min(LocalTime::compareTo)
                 .orElse(null);
+        super.setStartTime(value);
 }
-    @Override
-    public  LocalTime getStartTime() {
-        return startTime;
-    }
 
-    @Override
-    public int getDuration() {
-        return duration;
-    }
-    public void setDuration() {
-        duration = epicSteps.values().stream()
-                .mapToInt(subtask -> subtask.getDuration())
+    public void setEpicDuration() {
+        long value  = epicSteps.values().stream()
+                .mapToLong(subtask -> subtask.getDuration())
                 .sum();
+        super.setDuration(value);
     }
-public void setEndTime() {
+public void setEpicEndTime() {
     endTime = epicSteps.values().stream()
             .filter(subTask -> Optional.ofNullable(subTask.getEndTime()).isPresent())
             .map(SubTask::getEndTime)
@@ -69,7 +67,7 @@ public void setEndTime() {
         return endTime;
     }
 
-    public void checkStatus() {
+     void checkStatus() {
         ArrayList<Status> statusList = new ArrayList<>();
         for (Integer key : epicSteps.keySet()) {
             statusList.add(epicSteps.get(key).getStatus());
@@ -81,6 +79,11 @@ public void setEndTime() {
             this.setStatus(Status.IN_PROGRESS);
         else
             this.setStatus(Status.NEW);
+    }
+    void timeRefresh() {
+        setEpicStartTime();
+        setEpicDuration();
+        setEpicEndTime();
     }
 
     @Override

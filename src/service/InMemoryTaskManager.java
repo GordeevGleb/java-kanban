@@ -16,7 +16,7 @@ public class InMemoryTaskManager implements TaskManager {
     HashMap<Integer, SubTask> subTasks = new HashMap<>();
     HistoryManager historyManager = Managers.getDefaultHistoryManager();
     static int taskMaxId;
-    static TreeSet<Task> timeSortedSet = new TreeSet<>(
+     TreeSet<Task> timeSortedSet = new TreeSet<>(
             Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
 
 
@@ -177,7 +177,7 @@ public class InMemoryTaskManager implements TaskManager {
         return resultList;
     }
 
-    public static TreeSet<Task> getPrioritizedTasks() {
+    public TreeSet<Task> getPrioritizedTasks() {
         return timeSortedSet;
     }
 
@@ -191,6 +191,14 @@ public class InMemoryTaskManager implements TaskManager {
                     && (task.getStartTime().isBefore(sortedTask.getEndTime()))) {
                 isCrossed = true;
             }
+            else if (task.getEndTime().isAfter(sortedTask.getStartTime())
+            && (task.getEndTime().isBefore(sortedTask.getEndTime()))) {
+                isCrossed = true;
+            }
+            else if (task.getStartTime().isAfter(sortedTask.getStartTime())
+            && (task.getEndTime().isBefore(sortedTask.getEndTime()))) {
+                isCrossed = true;
+            }
         }
         return isCrossed;
     }
@@ -199,7 +207,7 @@ public class InMemoryTaskManager implements TaskManager {
         return taskMaxId++;
     }
 
-    public HistoryManager getHistoryManager() {
-        return historyManager;
+    public List<Task> getHistory(){
+        return historyManager.getHistory();
     }
 }
