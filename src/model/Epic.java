@@ -80,7 +80,7 @@ public void setEpicEndTime() {
         else
             this.setStatus(Status.NEW);
     }
-    void timeRefresh() {
+    private void timeRefresh() {
         setEpicStartTime();
         setEpicDuration();
         setEpicEndTime();

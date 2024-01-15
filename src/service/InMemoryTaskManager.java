@@ -181,7 +181,7 @@ public class InMemoryTaskManager implements TaskManager {
         return timeSortedSet;
     }
 
-    public boolean isTimeCross(Task task) {
+    private boolean isTimeCross(Task task) {
         boolean isCrossed = false;
         for (Task sortedTask : timeSortedSet) {
             if (Optional.ofNullable(sortedTask.getStartTime()).isEmpty() ||
