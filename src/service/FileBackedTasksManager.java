@@ -16,7 +16,8 @@ import static model.TaskType.*;
 
      private static final String HEAD = "id,type,name,status,description,epic,startTime,endTime\n";
 
-     public FileBackedTasksManager(File file) {
+     public FileBackedTasksManager(HistoryManager historyManager, File file) {
+         super(historyManager);
          this.file = file;
      }
 
@@ -28,9 +29,7 @@ import static model.TaskType.*;
                  bufferedWriter.newLine();
              }
              for (Epic epic : getAllEpic().values()) {
-                 epic.setEpicStartTime();
-                 epic.setEpicDuration();
-                 epic.setEpicEndTime();
+                 epic.refreshTime();
                  bufferedWriter.write(taskToString(epic));
                  bufferedWriter.newLine();
              }
@@ -115,10 +114,11 @@ import static model.TaskType.*;
      }
 
      private long getDuration(LocalTime startTime, LocalTime endTime) {
-         try {
-             return  Duration.between(startTime, endTime).toMinutes();
-         } catch (NullPointerException e) {
+         if (startTime == null) {
              return 0;
+         }
+         else {
+             return Duration.between(startTime, endTime).toMinutes();
          }
      }
 
@@ -139,8 +139,8 @@ import static model.TaskType.*;
          return resultList;
      }
 
-     private static FileBackedTasksManager loadFromFile(File file) {
-         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
+     public static FileBackedTasksManager loadFromFile(HistoryManager historyManager, File file) {
+         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(historyManager ,file);
          int maxId = -1;
          try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
              bufferedReader.readLine();
@@ -249,10 +249,26 @@ import static model.TaskType.*;
          return super.getPrioritizedTasks();
      }
 
+     @Override
+     public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+         FileBackedTasksManager that = (FileBackedTasksManager) o;
+         return Objects.equals(file, that.file);
+     }
+
+     @Override
+     public int hashCode() {
+         return Objects.hash(file);
+     }
+
      public static void main(String[] args) {
+         Managers managers = new Managers();
+         HistoryManager historyManager = managers.getDefaultHistoryManager();
          FileBackedTasksManager fileBackedTasksManager
-                 = FileBackedTasksManager.loadFromFile(new File("src/service/storage/taskStorage.csv"));
-         fileBackedTasksManager.createEpic(new Epic("111", "111", Status.IN_PROGRESS));
+                 = FileBackedTasksManager.loadFromFile(
+                         historyManager , new File("src/service/storage/taskStorage.csv"));
+      /*   fileBackedTasksManager.createEpic(new Epic("111", "111", Status.IN_PROGRESS));
          fileBackedTasksManager.createTask(new Task("testTask", "testTaskDescription", Status.NEW,
                  LocalTime.of(9, 15), 45));
          fileBackedTasksManager.createTask(new Task("testTask2", "testTaskDescription2", Status.NEW,
@@ -260,6 +276,10 @@ import static model.TaskType.*;
          fileBackedTasksManager.createSubTask(
                  new SubTask("111", "2220", Status.IN_PROGRESS, LocalTime.of(11, 32), 30, 0));
          fileBackedTasksManager.createSubTask(
-                 new SubTask("2221", "<>", Status.IN_PROGRESS, 0));
+                 new SubTask("2221", "<>", Status.IN_PROGRESS, 0)); */
+         fileBackedTasksManager.getTaskById(0);
+         fileBackedTasksManager.getTaskById(2);
+         fileBackedTasksManager.getTaskById(3);
+         fileBackedTasksManager.createTask(new Task("testTask41", "testTaskDescription51", Status.NEW));
      }
  }

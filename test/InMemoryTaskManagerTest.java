@@ -4,6 +4,8 @@ import model.SubTask;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.HistoryManager;
+import service.InMemoryHistoryManager;
 import service.InMemoryTaskManager;
 import service.TaskManager;
 import service.util.ManagerSaveException;
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
     TaskManager taskManager;
+    HistoryManager historyManager;
     Task task;
     Task task1;
     Epic epic;
@@ -24,7 +27,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
 
     @BeforeEach
     public void create() {
-        taskManager = new InMemoryTaskManager();
+        historyManager = new InMemoryHistoryManager();
+        taskManager = new InMemoryTaskManager(historyManager);
     }
 
 
@@ -71,9 +75,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         assertEquals(Status.IN_PROGRESS, epicStatus,
                 "Некорректное поведение статуса эпика при добавлении сабтаска");
         assertEquals(1, epic.getEpicSteps().size(), "Некорректное добавление задачи в список эпика");
-        epic.setEpicStartTime();
-        epic.setEpicDuration();
-        epic.setEpicEndTime();
+        epic.refreshTime();
         LocalTime epicStartTime = epic.getStartTime();
         assertEquals(LocalTime.of(14, 0), epicStartTime,
                 "Некорректный подсчёт времени начала выполнения эпика");

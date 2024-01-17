@@ -83,12 +83,7 @@ public class Task {
     }
 
     public LocalTime getEndTime() {
-        if (startTime != null) {
-            return startTime.plusMinutes(duration);
-        }
-        else {
-            return null;
-        }
+        return startTime != null? startTime.plusMinutes(duration): null;
     }
 
     @Override

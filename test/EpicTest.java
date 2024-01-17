@@ -3,6 +3,7 @@ import model.Status;
 import model.SubTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.HistoryManager;
 import service.InMemoryTaskManager;
 import service.TaskManager;
 
@@ -10,10 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EpicTest {
     TaskManager taskManager;
+    HistoryManager historyManager;
     Epic epic;
     @BeforeEach
     public void create() {
-        taskManager = new InMemoryTaskManager();
+        taskManager = new InMemoryTaskManager(historyManager);
         epic = new Epic("Test Epic", "Test Epic Description", Status.IN_PROGRESS);
         taskManager.createEpic(epic);
     }

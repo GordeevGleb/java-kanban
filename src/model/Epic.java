@@ -25,22 +25,22 @@ public class Epic extends Task {
     public void addSubtask(SubTask subTask) {
         epicSteps.put(subTask.getId(), subTask);
         checkStatus();
-        timeRefresh();
+        refreshTime();
     }
 
     public void removeAllSteps() {
         epicSteps.clear();
         checkStatus();
-        timeRefresh();
+        refreshTime();
     }
 
     public void removeStepById(int id) {
          epicSteps.remove(id);
         checkStatus();
-        timeRefresh();
+        refreshTime();
     }
 
-public void setEpicStartTime() {
+private void setEpicStartTime() {
         LocalTime value = epicSteps.values().stream()
                 .filter(subTask -> Optional.ofNullable(subTask.getStartTime()).isPresent())
                 .map(Task::getStartTime)
@@ -49,13 +49,13 @@ public void setEpicStartTime() {
         super.setStartTime(value);
 }
 
-    public void setEpicDuration() {
+    private void setEpicDuration() {
         long value  = epicSteps.values().stream()
                 .mapToLong(subtask -> subtask.getDuration())
                 .sum();
         super.setDuration(value);
     }
-public void setEpicEndTime() {
+private void setEpicEndTime() {
     endTime = epicSteps.values().stream()
             .filter(subTask -> Optional.ofNullable(subTask.getEndTime()).isPresent())
             .map(SubTask::getEndTime)
@@ -80,7 +80,7 @@ public void setEpicEndTime() {
         else
             this.setStatus(Status.NEW);
     }
-    private void timeRefresh() {
+    public void refreshTime() {
         setEpicStartTime();
         setEpicDuration();
         setEpicEndTime();
