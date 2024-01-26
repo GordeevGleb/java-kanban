@@ -7,7 +7,6 @@ import service.util.ManagerSaveException;
 
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -204,6 +203,10 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return isCrossed;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 
     static int generateId() {

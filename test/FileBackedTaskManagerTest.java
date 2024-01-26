@@ -23,6 +23,7 @@ public class FileBackedTaskManagerTest {
     Task task;
     @BeforeEach
     public void create() {
+        file = new File("test/storageTest/taskStorageTest.csv");
         historyManager = new InMemoryHistoryManager();
         file = new File("test/storageTest/taskStorageTest.csv");
         fileBackedTasksManager = new FileBackedTasksManager(historyManager, file);

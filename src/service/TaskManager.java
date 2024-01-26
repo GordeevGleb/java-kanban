@@ -43,6 +43,7 @@ public interface TaskManager {
     void refreshSubTask(SubTask subTask, int subTaskId);
 
     HashMap<Integer, SubTask> getSubTasksByEpic(int epicId);
+
 }
 
 
