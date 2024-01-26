@@ -1,12 +1,9 @@
 package model;
 
-import service.InMemoryTaskManager;
 import service.util.ManagerSaveException;
 
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Objects;
-import java.util.Optional;
 
 public class Task {
     private String name;

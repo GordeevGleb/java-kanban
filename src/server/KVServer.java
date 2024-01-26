@@ -2,14 +2,23 @@ package server;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import model.Task;
+import service.FileBackedTasksManager;
+import service.Managers;
 
 /**
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
@@ -30,21 +39,22 @@ public class KVServer {
 
     private void load(HttpExchange h) {
         // TODO Добавьте получение значения по ключу
-        try{
-            System.out.println("\n/load");
-if ("GET".equals(h.getRequestMethod())) {
-    Optional<String> query = Optional.ofNullable(h.getRequestURI().getQuery());
-    if (hasAuth(h)) {
-        String token = query.get();
-        String name = data.get(token);
-KVTaskClient client = new KVTaskClient(token, name);
-sendText(h, client.toString());
-    }
-    else {
-        System.out.println("Пользователь не найден");
-        h.sendResponseHeaders(403, 0);
-    }
-}
+        try {
+            System.out.println("\n/save");
+            if (!hasAuth(h)) {
+                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+                h.sendResponseHeaders(403, 0);
+                return;
+            }
+            if ("GET".equals(h.getRequestMethod())) {
+                String key = h.getRequestURI().getPath().substring("/load/".length());
+                if (key.isEmpty()) {
+                    System.out.println("Key для загрузки пустой. key указывается в пути: /save/{key}");
+                    return;
+                }
+                String response = data.get(key);
+                sendText(h, response);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -126,4 +136,22 @@ sendText(h, client.toString());
         h.sendResponseHeaders(200, resp.length);
         h.getResponseBody().write(resp);
     }
+
+//    public static void main(String[] args) throws IOException {
+//        KVServer kvServer = new KVServer();
+//        kvServer.start();
+//        URL url = new URL("http://localhost:" + PORT);
+//        KVTaskClient kvTaskClient = new KVTaskClient(url);
+//        Managers managers = new Managers();
+//        FileBackedTasksManager fileBackedTasksManager =
+//                FileBackedTasksManager.loadFromFile(managers.getDefaultHistoryManager(),
+//                        new File("src/service/storage/taskStorage.csv"));
+//        Task task = fileBackedTasksManager.getTaskById(1);
+//        Gson gson = new Gson();
+//        String s = gson.toJson(task);
+//        String id = String.valueOf(task.getId());
+//        kvTaskClient.put(id, s);
+//        System.out.println(kvServer.data.get("1"));
+//        System.out.println(kvTaskClient.load("1"));
+//    }
 }
