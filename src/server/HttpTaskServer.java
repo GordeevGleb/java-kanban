@@ -3,14 +3,12 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import model.Epic;
 import model.SubTask;
 import model.Task;
-import service.FileBackedTasksManager;
-import service.HistoryManager;
-import service.Managers;
-import service.TaskManager;
+import service.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +23,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer {
     public static final int PORT = 8080;
-    private HttpServer httpServer;
-    private Gson gson = new Gson();
-    private FileBackedTasksManager fileBackedTasksManager;
+    protected HttpServer httpServer;
+    protected Gson gson = new Gson();
+    protected FileBackedTasksManager fileBackedTasksManager;
 
 
 
@@ -54,8 +52,8 @@ public class HttpTaskServer {
                             int id = parseId(query);
                             if (id != -1) {
                                 Task task = fileBackedTasksManager.getTaskById(id);
-                                String responce = gson.toJson(task);
-                                sendText(httpExchange, responce);
+                                String response = gson.toJson(task);
+                                sendText(httpExchange, response);
                             }
                         }
                         break;
@@ -166,14 +164,5 @@ public class HttpTaskServer {
         h.sendResponseHeaders(200, resp.length);
         h.getResponseBody().write(resp);
     }
-
-    public static void main(String[] args) throws IOException {
-        Managers managers = new Managers();
-        FileBackedTasksManager fileBackedTasksManager1 =
-                FileBackedTasksManager.loadFromFile(managers.getDefaultHistoryManager(),
-                        new File("src/service/storage/taskStorage.csv"));
-        HttpTaskServer httpTaskServer = new HttpTaskServer(fileBackedTasksManager1);
-        httpTaskServer.start();
-        httpTaskServer.stop();
-    }
 }
+

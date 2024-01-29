@@ -12,6 +12,7 @@ public class Task {
     private Status status;
     private LocalTime startTime;
     private long duration;
+    private TaskType taskType;
 
 
 
@@ -19,6 +20,7 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
+        this.taskType = getTaskType();
     }
 
     public Task(String name, String description, Status status, LocalTime startTime, long duration) {
@@ -27,6 +29,7 @@ public class Task {
         this.status = status;
         this.startTime = startTime;
         this.duration = duration;
+        this.taskType = getTaskType();
     }
 
     public void setDescription(String description) {
@@ -82,6 +85,19 @@ public class Task {
     public LocalTime getEndTime() {
         return startTime != null? startTime.plusMinutes(duration): null;
     }
+public TaskType getTaskType() {
+        TaskType taskType;
+        if (this.getClass().equals(Task.class)) {
+            taskType = TaskType.TASK;
+        } else if (this.getClass().equals(Epic.class)) {
+            taskType = TaskType.EPIC;
+        }
+        else {
+            taskType = TaskType.SUBTASK;
+        }
+        return taskType;
+}
+
 
     @Override
     public String toString() {
@@ -90,6 +106,9 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
+                ", taskType=" + taskType +
                 '}';
     }
 

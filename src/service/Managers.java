@@ -14,4 +14,7 @@ private File file = new File("src/service/storage/taskStorage.csv");
         return new FileBackedTasksManager(getDefaultHistoryManager(), file);
     }
 
+    public File getFile() {
+        return file;
+    }
 }

@@ -266,24 +266,4 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return historyFromFile;
     }
 
-    public static void main(String[] args) {
-        Managers managers = new Managers();
-        HistoryManager historyManager = managers.getDefaultHistoryManager();
-        FileBackedTasksManager fileBackedTasksManager
-                = FileBackedTasksManager.loadFromFile(
-                historyManager , new File("src/service/storage/taskStorage.csv"));
-//         fileBackedTasksManager.createEpic(new Epic("111", "111", Status.IN_PROGRESS));
-//         fileBackedTasksManager.createTask(new Task("testTask", "testTaskDescription", Status.NEW,
-//                 LocalTime.of(9, 15), 45));
-//         fileBackedTasksManager.createTask(new Task("testTask2", "testTaskDescription2", Status.NEW,
-//                 LocalTime.of(8, 40), 15));
-//         fileBackedTasksManager.createSubTask(
-//                 new SubTask("111", "2220", Status.IN_PROGRESS, LocalTime.of(11, 32), 30, 0));
-//         fileBackedTasksManager.createSubTask(
-//                 new SubTask("2221", "<>", Status.IN_PROGRESS, 0));
-//        fileBackedTasksManager.getTaskById(0);
-//        fileBackedTasksManager.getTaskById(2);
-//        fileBackedTasksManager.getTaskById(3);
-//        fileBackedTasksManager.createTask(new Task("testTask41", "testTaskDescription51", Status.NEW));
-    }
 }

@@ -9,9 +9,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -25,6 +24,7 @@ import service.Managers;
  */
 public class KVServer {
     public static final int PORT = 8078;
+    Gson gson = new Gson();
     private final String apiToken;
     private final HttpServer server;
     private final Map<String, String> data = new HashMap<>();
@@ -40,7 +40,7 @@ public class KVServer {
     private void load(HttpExchange h) {
         // TODO Добавьте получение значения по ключу
         try {
-            System.out.println("\n/save");
+            System.out.println("\n/load");
             if (!hasAuth(h)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 h.sendResponseHeaders(403, 0);
@@ -50,10 +50,15 @@ public class KVServer {
                 String key = h.getRequestURI().getPath().substring("/load/".length());
                 if (key.isEmpty()) {
                     System.out.println("Key для загрузки пустой. key указывается в пути: /save/{key}");
-                    return;
+                } else if (key.equals("all")) {
+                    List<String> list = new ArrayList<>(data.values());
+                    String response = gson.toJson(list);
+                    sendText(h, response);
                 }
-                String response = data.get(key);
-                sendText(h, response);
+                else {
+                    String response = data.get(key);
+                    sendText(h, response);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -109,7 +114,6 @@ public class KVServer {
             h.close();
         }
     }
-
     public void start() {
         System.out.println("Запускаем сервер на порту " + PORT);
         System.out.println("Открой в браузере http://localhost:" + PORT + "/");
@@ -129,6 +133,10 @@ public class KVServer {
     protected String readText(HttpExchange h) throws IOException {
         return new String(h.getRequestBody().readAllBytes(), UTF_8);
     }
+    public void stop() {
+        server.stop(0);
+        System.out.println("Остановили сервер на порту " + PORT);
+    }
 
     protected void sendText(HttpExchange h, String text) throws IOException {
         byte[] resp = text.getBytes(UTF_8);
@@ -136,22 +144,4 @@ public class KVServer {
         h.sendResponseHeaders(200, resp.length);
         h.getResponseBody().write(resp);
     }
-
-//    public static void main(String[] args) throws IOException {
-//        KVServer kvServer = new KVServer();
-//        kvServer.start();
-//        URL url = new URL("http://localhost:" + PORT);
-//        KVTaskClient kvTaskClient = new KVTaskClient(url);
-//        Managers managers = new Managers();
-//        FileBackedTasksManager fileBackedTasksManager =
-//                FileBackedTasksManager.loadFromFile(managers.getDefaultHistoryManager(),
-//                        new File("src/service/storage/taskStorage.csv"));
-//        Task task = fileBackedTasksManager.getTaskById(1);
-//        Gson gson = new Gson();
-//        String s = gson.toJson(task);
-//        String id = String.valueOf(task.getId());
-//        kvTaskClient.put(id, s);
-//        System.out.println(kvServer.data.get("1"));
-//        System.out.println(kvTaskClient.load("1"));
-//    }
 }
