@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     HashMap<Integer, SubTask> subTasks = new HashMap<>();
     HistoryManager historyManager;
     static int taskMaxId;
-     TreeSet<Task> timeSortedSet = new TreeSet<>(
+      TreeSet<Task> timeSortedSet = new TreeSet<>(
             Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
 
     public InMemoryTaskManager(HistoryManager historyManager) {
@@ -181,6 +181,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     public TreeSet<Task> getPrioritizedTasks() {
         return timeSortedSet;
+    }
+
+    public void fillTimeSortedSet(Task task) {
+        timeSortedSet.add(task);
     }
 
     private boolean isTimeCross(Task task) {

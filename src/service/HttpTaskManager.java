@@ -2,10 +2,13 @@ package service;
 
 import com.google.gson.*;
 import model.Epic;
+import model.Status;
 import model.SubTask;
 import model.Task;
 import server.KVServer;
 import server.KVTaskClient;
+import service.util.ManagerSaveException;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +19,7 @@ import java.util.Objects;
 
 public class HttpTaskManager extends FileBackedTasksManager {
     private URL url;
-    private static Gson gson = new Gson();
+    private static Gson gson = new GsonBuilder().serializeNulls().create();
     private static Managers managers = new Managers();
     private static KVTaskClient kvTaskClient;
 
@@ -105,23 +108,28 @@ List<Epic> epics = new ArrayList<>(fileBackedTasksManager.getAllEpic().values())
             JsonArray jsonElements = element.getAsJsonArray();
             for (JsonElement jsonElement : jsonElements) {
                 String taskString = jsonElement.getAsString();
-
                 if (taskString.contains("EPIC")) {
                     Epic epic = gson.fromJson(taskString, Epic.class);
                     int id = epic.getId();
                     super.epicTasks.put(id, epic);
+                    taskMaxId = id +1;
                 } else if (taskString.contains("SUBTASK")) {
                     SubTask subTask = gson.fromJson(taskString, SubTask.class);
                     int id = subTask.getId();
                     super.subTasks.put(id, subTask);
+                    taskMaxId = id +1;
+                    fillTimeSortedSet(subTask);
                 } else {
                     Task task = gson.fromJson(taskString, Task.class);
                     int id = task.getId();
                     super.tasks.put(id, task);
+                    taskMaxId = id +1;
+                    fillTimeSortedSet(task);
                 }
             }
         }
          catch (Exception e) {
+            throw new ManagerSaveException("Ошибка при загрузке данных с сервера");
         }
     }
 
@@ -139,6 +147,7 @@ List<Epic> epics = new ArrayList<>(fileBackedTasksManager.getAllEpic().values())
         return Objects.hash(super.hashCode(), url);
     }
 
+
     public static void main(String[] args) {
         try {
             KVServer kvServer = new KVServer();
@@ -147,11 +156,9 @@ List<Epic> epics = new ArrayList<>(fileBackedTasksManager.getAllEpic().values())
                     managers.getFile(), new URL("http://localhost:8078"));
             httpTaskManager.saveToServer();
             httpTaskManager.loadFromServer();
-           httpTaskManager.deleteTaskById(6);
-
         }
         catch (IOException e) {
-
+throw new ManagerSaveException("Ошибка при работе http-менеджера");
         }
     }
 }
