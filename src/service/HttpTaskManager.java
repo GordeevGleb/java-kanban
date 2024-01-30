@@ -106,27 +106,41 @@ List<Epic> epics = new ArrayList<>(fileBackedTasksManager.getAllEpic().values())
         try {
             JsonElement element = JsonParser.parseString(kvTaskClient.load("all"));
             JsonArray jsonElements = element.getAsJsonArray();
+            int maxId = -1;
             for (JsonElement jsonElement : jsonElements) {
                 String taskString = jsonElement.getAsString();
                 if (taskString.contains("EPIC")) {
                     Epic epic = gson.fromJson(taskString, Epic.class);
-                    int id = epic.getId();
-                    super.epicTasks.put(id, epic);
-                    taskMaxId = id +1;
+                    if (!epic.equals(null)) {
+                        int id = epic.getId();
+                        if (maxId < id) {
+                            maxId = id;
+                        }
+                        super.epicTasks.put(id, epic);
+                    }
                 } else if (taskString.contains("SUBTASK")) {
                     SubTask subTask = gson.fromJson(taskString, SubTask.class);
-                    int id = subTask.getId();
-                    super.subTasks.put(id, subTask);
-                    taskMaxId = id +1;
-                    fillTimeSortedSet(subTask);
+                    if (!subTask.equals(null)) {
+                        int id = subTask.getId();
+                        if (maxId < id) {
+                            maxId = id;
+                        }
+                        super.subTasks.put(id, subTask);
+                        fillTimeSortedSet(subTask);
+                    }
                 } else {
                     Task task = gson.fromJson(taskString, Task.class);
-                    int id = task.getId();
-                    super.tasks.put(id, task);
-                    taskMaxId = id +1;
-                    fillTimeSortedSet(task);
+                    if (!task.equals(null)) {
+                        int id = task.getId();
+                        if (maxId < id) {
+                            maxId = id;
+                        }
+                        super.tasks.put(id, task);
+                        fillTimeSortedSet(task);
+                    }
                 }
             }
+            taskMaxId = maxId + 1;
         }
          catch (Exception e) {
             throw new ManagerSaveException("Ошибка при загрузке данных с сервера");
